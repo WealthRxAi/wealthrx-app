@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WealthRx — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0A0E0D; color: #FAFAF8;
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+    }
+    .serif { font-family: 'Instrument Serif', serif; }
+
+    /* TOP NAV */
+    .topnav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 12px 24px; height: 60px;
+      background: rgba(10,14,13,0.92); backdrop-filter: blur(24px);
+      border-bottom: 1px solid rgba(250,250,248,0.05);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .logo { display: flex; align-items: center; gap: 8px; }
+    .logo-icon {
+      width: 34px; height: 34px; border-radius: 10px;
+      background: linear-gradient(135deg, #0D7C5F, #10A37F);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-text .wealth { font-family: 'Instrument Serif', serif; font-size: 22px; }
+    .logo-text .rx { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 19px; color: #10A37F; }
+    .nav-right { display: flex; align-items: center; gap: 16px; }
+    .nav-btn {
+      padding: 8px 16px; border-radius: 8px; font-size: 13px;
+      font-family: 'DM Sans', sans-serif; cursor: pointer; border: none;
+      font-weight: 600; transition: all 0.2s;
+    }
+    .btn-export {
+      background: rgba(16,163,127,0.12); color: #10A37F;
+      border: 1px solid rgba(16,163,127,0.2);
+    }
+    .btn-export:hover { background: rgba(16,163,127,0.2); }
+    .btn-connect {
+      background: linear-gradient(135deg, #0D7C5F, #10A37F); color: #FAFAF8;
+    }
+    .btn-signout {
+      background: transparent; color: rgba(250,250,248,0.4);
+      border: 1px solid rgba(250,250,248,0.08);
+    }
+    .btn-signout:hover { color: #FAFAF8; border-color: rgba(250,250,248,0.2); }
+
+    /* MAIN LAYOUT */
+    .main { padding: 80px 24px 40px; max-width: 1100px; margin: 0 auto; }
+
+    /* WELCOME BAR */
+    .welcome {
+      margin-bottom: 32px;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
+    }
+    .welcome h1 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 28px; }
+    .welcome p { color: rgba(250,250,248,0.4); font-size: 14px; font-weight: 300; margin-top: 4px; }
+
+    /* FINANCIAL VITAL SIGNS */
+    .vitals {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px; margin-bottom: 32px;
+    }
+    .vital-card {
+      background: rgba(250,250,248,0.025); border: 1px solid rgba(250,250,248,0.05);
+      border-radius: 14px; padding: 20px;
+    }
+    .vital-label {
+      font-size: 12px; font-weight: 500; color: rgba(250,250,248,0.4);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;
+    }
+    .vital-value {
+      font-family: 'Instrument Serif', serif; font-size: 32px; font-weight: 400;
+    }
+    .vital-value.green { color: #10A37F; }
+    .vital-sub {
+      font-size: 12px; color: rgba(250,250,248,0.35); margin-top: 4px;
+    }
+    .vital-change {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 12px; font-weight: 600; margin-top: 6px; padding: 2px 8px;
+      border-radius: 100px;
+    }
+    .vital-change.up { color: #10A37F; background: rgba(16,163,127,0.1); }
+    .vital-change.down { color: #ff6b6b; background: rgba(255,80,80,0.1); }
+
+    /* SECTION HEADERS */
+    .section-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px; flex-wrap: wrap; gap: 12px;
+    }
+    .section-header h2 {
+      font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 22px;
+    }
+
+    /* FILTERS */
+    .filters {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;
+    }
+    .filter-btn {
+      padding: 8px 16px; border-radius: 100px; font-size: 13px;
+      font-family: 'DM Sans', sans-serif; cursor: pointer;
+      border: 1px solid rgba(250,250,248,0.08); background: transparent;
+      color: rgba(250,250,248,0.5); transition: all 0.2s; font-weight: 500;
+    }
+    .filter-btn.active { background: rgba(16,163,127,0.12); color: #10A37F; border-color: rgba(16,163,127,0.2); }
+    .filter-btn:hover { border-color: rgba(250,250,248,0.2); color: #FAFAF8; }
+    select.filter-select {
+      padding: 8px 12px; border-radius: 100px; font-size: 13px;
+      font-family: 'DM Sans', sans-serif; cursor: pointer;
+      border: 1px solid rgba(250,250,248,0.08); background: rgba(250,250,248,0.03);
+      color: rgba(250,250,248,0.5); outline: none;
+    }
+
+    /* DEDUCTION CATEGORIES */
+    .categories {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px; margin-bottom: 32px;
+    }
+    .cat-card {
+      background: rgba(250,250,248,0.025); border: 1px solid rgba(250,250,248,0.05);
+      border-radius: 12px; padding: 18px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .cat-info { display: flex; align-items: center; gap: 12px; }
+    .cat-icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      background: rgba(16,163,127,0.1); display: flex;
+      align-items: center; justify-content: center; font-size: 18px;
+    }
+    .cat-name { font-size: 14px; font-weight: 500; }
+    .cat-count { font-size: 12px; color: rgba(250,250,248,0.35); }
+    .cat-amount { font-family: 'Instrument Serif', serif; font-size: 22px; color: #10A37F; }
+
+    /* TRANSACTION LIST */
+    .transactions { margin-bottom: 32px; }
+    .tx-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; gap: 12px;
+      background: rgba(250,250,248,0.015);
+      border: 1px solid rgba(250,250,248,0.04);
+      border-radius: 12px; margin-bottom: 8px;
+      transition: border-color 0.2s;
+    }
+    .tx-item:hover { border-color: rgba(250,250,248,0.1); }
+    .tx-left { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; }
+    .tx-status {
+      width: 32px; height: 32px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .tx-status.deductible { background: rgba(16,163,127,0.12); }
+    .tx-status.partial { background: rgba(255,193,7,0.12); }
+    .tx-status.personal { background: rgba(255,80,80,0.08); }
+    .tx-vendor { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tx-category { font-size: 12px; color: rgba(250,250,248,0.35); }
+    .tx-right { text-align: right; flex-shrink: 0; }
+    .tx-amount { font-size: 15px; font-weight: 600; }
+    .tx-tag {
+      display: inline-block; padding: 2px 8px; border-radius: 100px;
+      font-size: 11px; font-weight: 600; margin-top: 4px;
+    }
+    .tx-tag.deductible { background: rgba(16,163,127,0.12); color: #10A37F; }
+    .tx-tag.partial { background: rgba(255,193,7,0.12); color: #ffc107; }
+    .tx-tag.personal { background: rgba(255,80,80,0.08); color: #ff6b6b; }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center; padding: 80px 24px;
+      background: rgba(250,250,248,0.015); border: 1px dashed rgba(250,250,248,0.08);
+      border-radius: 16px; margin-bottom: 32px;
+    }
+    .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+    .empty-state h3 {
+      font-family: 'Instrument Serif', serif; font-weight: 400;
+      font-size: 24px; margin-bottom: 8px;
+    }
+    .empty-state p {
+      color: rgba(250,250,248,0.4); font-size: 15px;
+      max-width: 400px; margin: 0 auto 24px; font-weight: 300; line-height: 1.6;
+    }
+    .empty-state .btn-connect-large {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 28px; border-radius: 10px;
+      background: linear-gradient(135deg, #0D7C5F, #10A37F);
+      color: #FAFAF8; border: none; font-family: 'DM Sans', sans-serif;
+      font-weight: 700; font-size: 15px; cursor: pointer;
+      box-shadow: 0 4px 20px rgba(13,124,95,0.3);
+      transition: all 0.2s;
+    }
+    .empty-state .btn-connect-large:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* HEALTH SCORE */
+    .health-score {
+      background: linear-gradient(135deg, rgba(13,124,95,0.12), rgba(16,163,127,0.06));
+      border: 1px solid rgba(16,163,127,0.15);
+      border-radius: 14px; padding: 24px; text-align: center; margin-bottom: 32px;
+    }
+    .score-number {
+      font-family: 'Instrument Serif', serif; font-size: 64px;
+      color: #10A37F; line-height: 1;
+    }
+    .score-label {
+      font-size: 14px; color: rgba(250,250,248,0.5); margin-top: 8px;
+    }
+    .score-bar {
+      width: 100%; max-width: 300px; height: 8px; margin: 16px auto 0;
+      background: rgba(250,250,248,0.05); border-radius: 100px; overflow: hidden;
+    }
+    .score-fill {
+      height: 100%; border-radius: 100px;
+      background: linear-gradient(90deg, #0D7C5F, #10A37F);
+      transition: width 1s ease;
+    }
+
+    /* LOADING */
+    .loading {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; font-size: 16px; color: rgba(250,250,248,0.4);
+    }
+
+    @media (max-width: 768px) {
+      .vitals { grid-template-columns: repeat(2, 1fr); }
+      .topnav { padding: 12px 16px; }
+      .main { padding: 72px 16px 40px; }
+      .nav-right .btn-export { display: none; }
+    }
+    @media (max-width: 480px) {
+      .vitals { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOADING STATE -->
+  <div class="loading" id="loading">Loading WealthRx...</div>
+
+  <!-- APP (hidden until auth check) -->
+  <div id="app" style="display:none;">
+
+    <!-- TOP NAV -->
+    <nav class="topnav">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FAFAF8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+            <polyline points="16 7 22 7 22 13"/>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="wealth">Wealth</span><span class="rx">Rx</span>
+        </div>
+      </div>
+      <div class="nav-right">
+        <button class="nav-btn btn-export" onclick="exportExcel()" id="export-btn" style="display:none;">📥 Export Excel</button>
+        <button class="nav-btn btn-connect" onclick="connectBank()" id="connect-btn">+ Connect Bank</button>
+        <button class="nav-btn btn-signout" onclick="signOut()">Sign Out</button>
+      </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <div class="main">
+
+      <!-- WELCOME -->
+      <div class="welcome">
+        <div>
+          <h1 id="welcome-name">Welcome back</h1>
+          <p id="welcome-sub">Here's your financial snapshot</p>
+        </div>
+      </div>
+
+      <!-- EMPTY STATE (shown when no bank connected) -->
+      <div class="empty-state" id="empty-state">
+        <div class="icon">🏦</div>
+        <h3>Connect your bank to get started</h3>
+        <p>WealthRx monitors your transactions in real time, categorizes every expense, and finds deductions you're missing. Connect your business bank account to start saving.</p>
+        <button class="btn-connect-large" onclick="connectBank()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+          Connect Bank Account
+        </button>
+      </div>
+
+      <!-- DASHBOARD CONTENT (shown when bank is connected) -->
+      <div id="dashboard-content" style="display:none;">
+
+        <!-- FINANCIAL VITAL SIGNS -->
+        <div class="vitals">
+          <div class="vital-card">
+            <div class="vital-label">Cash on Hand</div>
+            <div class="vital-value" id="vital-cash">$0</div>
+            <div class="vital-change up" id="vital-cash-change">↑ Checking balance</div>
+          </div>
+          <div class="vital-card">
+            <div class="vital-label">Monthly Revenue</div>
+            <div class="vital-value" id="vital-revenue">$0</div>
+            <div class="vital-sub" id="vital-revenue-sub">This month</div>
+          </div>
+          <div class="vital-card">
+            <div class="vital-label">Monthly Expenses</div>
+            <div class="vital-value" id="vital-expenses">$0</div>
+            <div class="vital-sub" id="vital-expenses-sub">This month</div>
+          </div>
+          <div class="vital-card">
+            <div class="vital-label">Deductions Found</div>
+            <div class="vital-value green" id="vital-deductions">$0</div>
+            <div class="vital-change up">Year to date</div>
+          </div>
+          <div class="vital-card">
+            <div class="vital-label">Est. Tax Savings</div>
+            <div class="vital-value green" id="vital-savings">$0</div>
+            <div class="vital-sub">At 25% effective rate</div>
+          </div>
+        </div>
+
+        <!-- HEALTH SCORE -->
+        <div class="health-score">
+          <div class="score-number" id="health-score">--</div>
+          <div class="score-label">Financial Health Score</div>
+          <div class="score-bar"><div class="score-fill" id="score-fill" style="width: 0%"></div></div>
+        </div>
+
+        <!-- DEDUCTION CATEGORIES -->
+        <div class="section-header">
+          <h2>Deductions by Category</h2>
+        </div>
+        <div class="categories" id="categories-grid">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- FILTERS -->
+        <div class="section-header">
+          <h2>Recent Transactions</h2>
+        </div>
+        <div class="filters">
+          <button class="filter-btn active" onclick="filterTime(this, 'month')">This Month</button>
+          <button class="filter-btn" onclick="filterTime(this, 'quarter')">This Quarter</button>
+          <button class="filter-btn" onclick="filterTime(this, 'year')">This Year</button>
+          <select class="filter-select" onchange="filterCategory(this.value)">
+            <option value="all">All Categories</option>
+            <option value="deductible">Deductible Only</option>
+            <option value="personal">Personal Only</option>
+            <option value="review">Needs Review</option>
+          </select>
+        </div>
+
+        <!-- TRANSACTION LIST -->
+        <div class="transactions" id="transactions-list">
+          <!-- Populated by JS -->
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // REPLACE THESE WITH YOUR ACTUAL SUPABASE CREDENTIALS
+    const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let currentUser = null;
+    let transactions = [];
+    let bankConnected = false;
+
+    // Check authentication
+    async function init() {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        window.location.href = '/login';
+        return;
+      }
+
+      currentUser = session.user;
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+
+      // Set welcome name
+      const name = currentUser.user_metadata?.full_name || currentUser.email.split('@')[0];
+      document.getElementById('welcome-name').textContent = `Welcome back, ${name}`;
+
+      // Check if bank is connected
+      await checkBankConnection();
+    }
+
+    async function checkBankConnection() {
+      const { data, error } = await supabase
+        .from('bank_connections')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .limit(1);
+
+      if (data && data.length > 0) {
+        bankConnected = true;
+        document.getElementById('empty-state').style.display = 'none';
+        document.getElementById('dashboard-content').style.display = 'block';
+        document.getElementById('export-btn').style.display = 'block';
+        await loadTransactions();
+      } else {
+        document.getElementById('empty-state').style.display = 'block';
+        document.getElementById('dashboard-content').style.display = 'none';
+      }
+    }
+
+    async function loadTransactions() {
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .order('date', { ascending: false })
+        .limit(100);
+
+      if (data) {
+        transactions = data;
+        renderDashboard();
+      }
+    }
+
+    function renderDashboard() {
+      // Calculate vitals
+      const now = new Date();
+      const thisMonth = transactions.filter(t => {
+        const d = new Date(t.date);
+        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+      });
+
+      const revenue = thisMonth.filter(t => t.amount > 0).reduce((s, t) => s + t.amount, 0);
+      const expenses = thisMonth.filter(t => t.amount < 0).reduce((s, t) => s + Math.abs(t.amount), 0);
+      const deductions = transactions.filter(t => t.is_deductible).reduce((s, t) => s + Math.abs(t.amount), 0);
+      const partialDeductions = transactions.filter(t => t.deduction_percent && t.deduction_percent < 100)
+        .reduce((s, t) => s + (Math.abs(t.amount) * t.deduction_percent / 100), 0);
+      const totalDeductions = deductions + partialDeductions;
+      const taxSavings = totalDeductions * 0.25;
+
+      document.getElementById('vital-revenue').textContent = '$' + revenue.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+      document.getElementById('vital-expenses').textContent = '$' + expenses.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+      document.getElementById('vital-deductions').textContent = '$' + totalDeductions.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+      document.getElementById('vital-savings').textContent = '$' + taxSavings.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+
+      // Health score (simple calculation)
+      let score = 50;
+      if (revenue > 0) score += 15;
+      if (revenue > expenses) score += 15;
+      if (totalDeductions > 1000) score += 10;
+      if (totalDeductions > 5000) score += 10;
+      score = Math.min(score, 100);
+      document.getElementById('health-score').textContent = score;
+      document.getElementById('score-fill').style.width = score + '%';
+
+      // Render categories
+      renderCategories();
+
+      // Render transactions
+      renderTransactions(transactions);
+    }
+
+    function renderCategories() {
+      const cats = {};
+      transactions.forEach(t => {
+        if (t.is_deductible || t.deduction_percent > 0) {
+          const cat = t.category || 'Uncategorized';
+          if (!cats[cat]) cats[cat] = { total: 0, count: 0 };
+          const amt = t.deduction_percent
+            ? Math.abs(t.amount) * t.deduction_percent / 100
+            : Math.abs(t.amount);
+          cats[cat].total += amt;
+          cats[cat].count += 1;
+        }
+      });
+
+      const icons = {
+        'Office Supplies': '📎', 'Software': '💻', 'Meals': '🍽️',
+        'Vehicle & Travel': '🚗', 'Equipment': '🖥️', 'Professional Services': '👔',
+        'Internet & Phone': '📱', 'Advertising': '📣', 'Insurance': '🛡️',
+        'Education': '📚', 'Rent & Utilities': '🏢', 'Uncategorized': '📋'
+      };
+
+      const grid = document.getElementById('categories-grid');
+      grid.innerHTML = '';
+
+      Object.entries(cats)
+        .sort((a, b) => b[1].total - a[1].total)
+        .forEach(([name, data]) => {
+          grid.innerHTML += `
+            <div class="cat-card">
+              <div class="cat-info">
+                <div class="cat-icon">${icons[name] || '📋'}</div>
+                <div>
+                  <div class="cat-name">${name}</div>
+                  <div class="cat-count">${data.count} transaction${data.count !== 1 ? 's' : ''}</div>
+                </div>
+              </div>
+              <div class="cat-amount">$${data.total.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</div>
+            </div>
+          `;
+        });
+
+      if (Object.keys(cats).length === 0) {
+        grid.innerHTML = '<p style="color:rgba(250,250,248,0.3); font-size:14px; grid-column:1/-1; text-align:center; padding:20px;">No deductions found yet. Transactions will be categorized automatically.</p>';
+      }
+    }
+
+    function renderTransactions(txns) {
+      const list = document.getElementById('transactions-list');
+      list.innerHTML = '';
+
+      if (txns.length === 0) {
+        list.innerHTML = '<p style="color:rgba(250,250,248,0.3); font-size:14px; text-align:center; padding:40px;">No transactions yet. They\'ll appear here once synced from your bank.</p>';
+        return;
+      }
+
+      txns.forEach(t => {
+        let statusClass, statusIcon, tagClass, tagText;
+
+        if (t.is_deductible) {
+          statusClass = 'deductible'; statusIcon = '✅';
+          tagClass = 'deductible'; tagText = 'TAX DEDUCTIBLE';
+        } else if (t.deduction_percent && t.deduction_percent > 0) {
+          statusClass = 'partial'; statusIcon = '⚠️';
+          tagClass = 'partial'; tagText = `${t.deduction_percent}% DEDUCTIBLE`;
+        } else {
+          statusClass = 'personal'; statusIcon = '❌';
+          tagClass = 'personal'; tagText = 'NOT DEDUCTIBLE';
+        }
+
+        const amount = Math.abs(t.amount);
+        const sign = t.amount < 0 ? '-' : '+';
+
+        list.innerHTML += `
+          <div class="tx-item">
+            <div class="tx-left">
+              <div class="tx-status ${statusClass}">${statusIcon}</div>
+              <div>
+                <div class="tx-vendor">${t.vendor || t.name || 'Unknown'}</div>
+                <div class="tx-category">${t.category || 'Uncategorized'} · ${new Date(t.date).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}</div>
+              </div>
+            </div>
+            <div class="tx-right">
+              <div class="tx-amount">${sign}$${amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
+              <div class="tx-tag ${tagClass}">${tagText}</div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // FILTERS
+    function filterTime(btn, period) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const now = new Date();
+      let filtered = transactions;
+
+      if (period === 'month') {
+        filtered = transactions.filter(t => {
+          const d = new Date(t.date);
+          return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+        });
+      } else if (period === 'quarter') {
+        const qStart = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
+        filtered = transactions.filter(t => new Date(t.date) >= qStart);
+      }
+      // 'year' shows all (since we only load current year by default)
+
+      renderTransactions(filtered);
+    }
+
+    function filterCategory(value) {
+      let filtered = transactions;
+      if (value === 'deductible') filtered = transactions.filter(t => t.is_deductible);
+      else if (value === 'personal') filtered = transactions.filter(t => !t.is_deductible && (!t.deduction_percent || t.deduction_percent === 0));
+      else if (value === 'review') filtered = transactions.filter(t => t.needs_review);
+      renderTransactions(filtered);
+    }
+
+    // CONNECT BANK (Plaid Link)
+    async function connectBank() {
+      try {
+        // Get link token from our API
+        const res = await fetch('/api/create-link-token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: currentUser.id })
+        });
+        const { link_token } = await res.json();
+
+        // Open Plaid Link
+        const handler = Plaid.create({
+          token: link_token,
+          onSuccess: async (public_token, metadata) => {
+            // Exchange public token for access token
+            await fetch('/api/exchange-token', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                public_token,
+                user_id: currentUser.id,
+                institution: metadata.institution
+              })
+            });
+
+            // Sync transactions
+            await fetch('/api/sync-transactions', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ user_id: currentUser.id })
+            });
+
+            // Reload dashboard
+            await checkBankConnection();
+          },
+          onExit: (err) => {
+            if (err) console.error('Plaid Link error:', err);
+          }
+        });
+
+        handler.open();
+      } catch (error) {
+        console.error('Error connecting bank:', error);
+        alert('Error connecting bank. Please try again.');
+      }
+    }
+
+    // EXPORT TO EXCEL
+    async function exportExcel() {
+      if (transactions.length === 0) {
+        alert('No transactions to export yet.');
+        return;
+      }
+
+      // Build CSV (Excel-compatible)
+      const deductible = transactions.filter(t => t.is_deductible || (t.deduction_percent && t.deduction_percent > 0));
+      const personal = transactions.filter(t => !t.is_deductible && (!t.deduction_percent || t.deduction_percent === 0));
+
+      let csv = 'WEALTHRX DEDUCTION REPORT\n';
+      csv += 'Generated: ' + new Date().toLocaleDateString() + '\n\n';
+      csv += 'DEDUCTIBLE TRANSACTIONS\n';
+      csv += 'Date,Vendor,Category,Amount,Deduction %,Deductible Amount\n';
+
+      deductible.forEach(t => {
+        const pct = t.deduction_percent || 100;
+        const deductAmt = Math.abs(t.amount) * pct / 100;
+        csv += `${t.date},"${t.vendor || t.name}","${t.category}",${Math.abs(t.amount)},${pct}%,$${deductAmt.toFixed(2)}\n`;
+      });
+
+      const totalDed = deductible.reduce((s, t) => {
+        const pct = t.deduction_percent || 100;
+        return s + Math.abs(t.amount) * pct / 100;
+      }, 0);
+
+      csv += `\nTOTAL DEDUCTIONS,,,,,$${totalDed.toFixed(2)}\n`;
+      csv += `ESTIMATED TAX SAVINGS (25%),,,,,$${(totalDed * 0.25).toFixed(2)}\n\n`;
+
+      csv += 'NON-DEDUCTIBLE TRANSACTIONS\n';
+      csv += 'Date,Vendor,Category,Amount\n';
+      personal.forEach(t => {
+        csv += `${t.date},"${t.vendor || t.name}","${t.category}",${Math.abs(t.amount)}\n`;
+      });
+
+      // Download
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `WealthRx_Deductions_${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // SIGN OUT
+    async function signOut() {
+      await supabase.auth.signOut();
+      window.location.href = '/login';
+    }
+
+    // Initialize
+    init();
+  </script>
+
+  <!-- Plaid Link SDK -->
+  <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+
+</body>
+</html>
