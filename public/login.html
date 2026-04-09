@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WealthRx — Sign In</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0A0E0D; color: #FAFAF8;
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh; display: flex;
+      align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    .container {
+      width: 100%; max-width: 420px;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      justify-content: center; margin-bottom: 48px;
+    }
+    .logo-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: linear-gradient(135deg, #0D7C5F, #10A37F);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 16px rgba(13,124,95,0.35);
+    }
+    .logo-text .wealth {
+      font-family: 'Instrument Serif', serif; font-weight: 400;
+      font-size: 28px; letter-spacing: -0.5px;
+    }
+    .logo-text .rx {
+      font-family: 'DM Sans', sans-serif; font-weight: 700;
+      font-size: 24px; color: #10A37F;
+    }
+    .card {
+      background: rgba(250,250,248,0.025);
+      border: 1px solid rgba(250,250,248,0.06);
+      border-radius: 16px; padding: 36px;
+    }
+    h1 {
+      font-family: 'Instrument Serif', serif; font-weight: 400;
+      font-size: 28px; margin-bottom: 8px; text-align: center;
+    }
+    .subtitle {
+      color: rgba(250,250,248,0.45); font-size: 15px;
+      text-align: center; margin-bottom: 32px; font-weight: 300;
+    }
+    .tabs {
+      display: flex; gap: 0; margin-bottom: 28px;
+      background: rgba(250,250,248,0.05); border-radius: 10px; padding: 4px;
+    }
+    .tab {
+      flex: 1; padding: 10px; text-align: center; border-radius: 8px;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      transition: all 0.3s ease; color: rgba(250,250,248,0.45);
+      border: none; background: transparent; font-family: 'DM Sans', sans-serif;
+    }
+    .tab.active {
+      background: rgba(16,163,127,0.15); color: #10A37F;
+    }
+    .field { margin-bottom: 18px; }
+    label {
+      display: block; font-size: 13px; font-weight: 500;
+      color: rgba(250,250,248,0.6); margin-bottom: 6px;
+    }
+    input[type="email"], input[type="password"], input[type="text"] {
+      width: 100%; padding: 14px 16px;
+      background: rgba(250,250,248,0.05);
+      border: 1px solid rgba(250,250,248,0.1);
+      border-radius: 10px; color: #FAFAF8; font-size: 15px;
+      font-family: 'DM Sans', sans-serif; outline: none;
+      transition: border-color 0.3s ease;
+    }
+    input:focus { border-color: rgba(16,163,127,0.4); }
+    input::placeholder { color: rgba(250,250,248,0.25); }
+    .btn {
+      width: 100%; padding: 14px; border: none; border-radius: 10px;
+      font-family: 'DM Sans', sans-serif; font-weight: 700;
+      font-size: 15px; cursor: pointer; transition: all 0.3s ease;
+      background: linear-gradient(135deg, #0D7C5F, #10A37F);
+      color: #FAFAF8; box-shadow: 0 4px 20px rgba(13,124,95,0.3);
+      margin-top: 8px;
+    }
+    .btn:hover { opacity: 0.92; transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 20px 0; color: rgba(250,250,248,0.2); font-size: 13px;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: rgba(250,250,248,0.08);
+    }
+    .error {
+      background: rgba(255,80,80,0.1); border: 1px solid rgba(255,80,80,0.2);
+      border-radius: 8px; padding: 12px; margin-bottom: 16px;
+      font-size: 13px; color: #ff6b6b; display: none;
+    }
+    .success {
+      background: rgba(16,163,127,0.1); border: 1px solid rgba(16,163,127,0.2);
+      border-radius: 8px; padding: 12px; margin-bottom: 16px;
+      font-size: 13px; color: #10A37F; display: none;
+    }
+    .footer-text {
+      text-align: center; margin-top: 24px;
+      font-size: 13px; color: rgba(250,250,248,0.25);
+    }
+    .signup-fields { display: none; }
+    .signup-fields.show { display: block; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FAFAF8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+          <polyline points="16 7 22 7 22 13"/>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <span class="wealth">Wealth</span><span class="rx">Rx</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h1 id="form-title">Welcome back</h1>
+      <p class="subtitle" id="form-subtitle">Sign in to your WealthRx dashboard</p>
+
+      <div class="tabs">
+        <button class="tab active" id="tab-login" onclick="switchTab('login')">Sign In</button>
+        <button class="tab" id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
+      </div>
+
+      <div class="error" id="error-msg"></div>
+      <div class="success" id="success-msg"></div>
+
+      <form id="auth-form" onsubmit="handleAuth(event)">
+        <div class="signup-fields" id="signup-fields">
+          <div class="field">
+            <label>Business Name</label>
+            <input type="text" id="business-name" placeholder="Your business name">
+          </div>
+          <div class="field">
+            <label>Full Name</label>
+            <input type="text" id="full-name" placeholder="Your full name">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="email" placeholder="you@yourbusiness.com" required>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="password" placeholder="••••••••" required minlength="6">
+        </div>
+
+        <button type="submit" class="btn" id="submit-btn">Sign In</button>
+      </form>
+
+      <div class="divider">or</div>
+
+      <button class="btn" style="background: rgba(250,250,248,0.05); box-shadow: none; border: 1px solid rgba(250,250,248,0.1);" onclick="signInWithGoogle()">
+        Continue with Google
+      </button>
+    </div>
+
+    <p class="footer-text">© 2026 WealthRx AI™. All rights reserved.</p>
+  </div>
+
+  <script>
+    // REPLACE THESE WITH YOUR ACTUAL SUPABASE CREDENTIALS
+    const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let currentMode = 'login';
+
+    function switchTab(mode) {
+      currentMode = mode;
+      document.getElementById('tab-login').classList.toggle('active', mode === 'login');
+      document.getElementById('tab-signup').classList.toggle('active', mode === 'signup');
+      document.getElementById('signup-fields').classList.toggle('show', mode === 'signup');
+      document.getElementById('submit-btn').textContent = mode === 'login' ? 'Sign In' : 'Create Account';
+      document.getElementById('form-title').textContent = mode === 'login' ? 'Welcome back' : 'Get started';
+      document.getElementById('form-subtitle').textContent = mode === 'login'
+        ? 'Sign in to your WealthRx dashboard'
+        : 'Create your WealthRx account — it takes 30 seconds';
+      hideMessages();
+    }
+
+    function hideMessages() {
+      document.getElementById('error-msg').style.display = 'none';
+      document.getElementById('success-msg').style.display = 'none';
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('error-msg');
+      el.textContent = msg;
+      el.style.display = 'block';
+      document.getElementById('success-msg').style.display = 'none';
+    }
+
+    function showSuccess(msg) {
+      const el = document.getElementById('success-msg');
+      el.textContent = msg;
+      el.style.display = 'block';
+      document.getElementById('error-msg').style.display = 'none';
+    }
+
+    async function handleAuth(e) {
+      e.preventDefault();
+      hideMessages();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const btn = document.getElementById('submit-btn');
+
+      btn.disabled = true;
+      btn.textContent = currentMode === 'login' ? 'Signing in...' : 'Creating account...';
+
+      try {
+        if (currentMode === 'signup') {
+          const businessName = document.getElementById('business-name').value;
+          const fullName = document.getElementById('full-name').value;
+
+          const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              data: {
+                full_name: fullName,
+                business_name: businessName
+              }
+            }
+          });
+
+          if (error) throw error;
+
+          if (data.user && data.user.identities && data.user.identities.length === 0) {
+            showError('An account with this email already exists. Try signing in.');
+          } else {
+            showSuccess('Account created! Check your email to verify, then sign in.');
+            switchTab('login');
+          }
+        } else {
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password
+          });
+
+          if (error) throw error;
+
+          // Redirect to dashboard on success
+          window.location.href = '/dashboard';
+        }
+      } catch (error) {
+        showError(error.message || 'Something went wrong. Please try again.');
+      }
+
+      btn.disabled = false;
+      btn.textContent = currentMode === 'login' ? 'Sign In' : 'Create Account';
+    }
+
+    async function signInWithGoogle() {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin + '/dashboard'
+        }
+      });
+      if (error) showError(error.message);
+    }
+
+    // Check if already logged in
+    async function checkSession() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        window.location.href = '/dashboard';
+      }
+    }
+
+    checkSession();
+  </script>
+</body>
+</html>
