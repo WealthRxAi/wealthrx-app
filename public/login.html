@@ -15,9 +15,7 @@
       align-items: center; justify-content: center;
       padding: 24px;
     }
-    .container {
-      width: 100%; max-width: 420px;
-    }
+    .container { width: 100%; max-width: 420px; }
     .logo {
       display: flex; align-items: center; gap: 10px;
       justify-content: center; margin-bottom: 48px;
@@ -59,9 +57,7 @@
       transition: all 0.3s ease; color: rgba(250,250,248,0.45);
       border: none; background: transparent; font-family: 'DM Sans', sans-serif;
     }
-    .tab.active {
-      background: rgba(16,163,127,0.15); color: #10A37F;
-    }
+    .tab.active { background: rgba(16,163,127,0.15); color: #10A37F; }
     .field { margin-bottom: 18px; }
     label {
       display: block; font-size: 13px; font-weight: 500;
@@ -87,13 +83,6 @@
     }
     .btn:hover { opacity: 0.92; transform: translateY(-1px); }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-    .divider {
-      display: flex; align-items: center; gap: 12px;
-      margin: 20px 0; color: rgba(250,250,248,0.2); font-size: 13px;
-    }
-    .divider::before, .divider::after {
-      content: ''; flex: 1; height: 1px; background: rgba(250,250,248,0.08);
-    }
     .error {
       background: rgba(255,80,80,0.1); border: 1px solid rgba(255,80,80,0.2);
       border-radius: 8px; padding: 12px; margin-bottom: 16px;
@@ -161,25 +150,18 @@
 
         <button type="submit" class="btn" id="submit-btn">Sign In</button>
       </form>
-
-      <div class="divider">or</div>
-
-      <button class="btn" style="background: rgba(250,250,248,0.05); box-shadow: none; border: 1px solid rgba(250,250,248,0.1);" onclick="signInWithGoogle()">
-        Continue with Google
-      </button>
     </div>
 
     <p class="footer-text">© 2026 WealthRx AI™. All rights reserved.</p>
   </div>
 
   <script>
-    // REPLACE THESE WITH YOUR ACTUAL SUPABASE CREDENTIALS
-    const SUPABASE_URL = 'https://rvlipquyskehlqhgptai.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_QBh_5Ky7gme_YFmQUdRAFg_c7e-QGwV';
+    var SUPABASE_URL = 'https://rvlipquyskehlqhgptai.supabase.co';
+    var SUPABASE_ANON_KEY = 'sb_publishable_QBh_5Ky7gme_YFmQUdRAFg_c7e-QGwV';
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let currentMode = 'login';
+    var currentMode = 'login';
 
     function switchTab(mode) {
       currentMode = mode;
@@ -200,14 +182,14 @@
     }
 
     function showError(msg) {
-      const el = document.getElementById('error-msg');
+      var el = document.getElementById('error-msg');
       el.textContent = msg;
       el.style.display = 'block';
       document.getElementById('success-msg').style.display = 'none';
     }
 
     function showSuccess(msg) {
-      const el = document.getElementById('success-msg');
+      var el = document.getElementById('success-msg');
       el.textContent = msg;
       el.style.display = 'block';
       document.getElementById('error-msg').style.display = 'none';
@@ -217,21 +199,21 @@
       e.preventDefault();
       hideMessages();
 
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const btn = document.getElementById('submit-btn');
+      var email = document.getElementById('email').value;
+      var password = document.getElementById('password').value;
+      var btn = document.getElementById('submit-btn');
 
       btn.disabled = true;
       btn.textContent = currentMode === 'login' ? 'Signing in...' : 'Creating account...';
 
       try {
         if (currentMode === 'signup') {
-          const businessName = document.getElementById('business-name').value;
-          const fullName = document.getElementById('full-name').value;
+          var businessName = document.getElementById('business-name').value;
+          var fullName = document.getElementById('full-name').value;
 
-          const { data, error } = await supabase.auth.signUp({
-            email,
-            password,
+          var result = await sb.auth.signUp({
+            email: email,
+            password: password,
             options: {
               data: {
                 full_name: fullName,
@@ -240,24 +222,23 @@
             }
           });
 
-          if (error) throw error;
+          if (result.error) throw result.error;
 
-          if (data.user && data.user.identities && data.user.identities.length === 0) {
+          if (result.data.user && result.data.user.identities && result.data.user.identities.length === 0) {
             showError('An account with this email already exists. Try signing in.');
           } else {
             showSuccess('Account created! Check your email to verify, then sign in.');
             switchTab('login');
           }
         } else {
-          const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password
+          var result = await sb.auth.signInWithPassword({
+            email: email,
+            password: password
           });
 
-          if (error) throw error;
+          if (result.error) throw result.error;
 
-          // Redirect to dashboard on success
-          window.location.href = '/dashboard';
+          window.location.href = '/dashboard.html';
         }
       } catch (error) {
         showError(error.message || 'Something went wrong. Please try again.');
@@ -267,21 +248,10 @@
       btn.textContent = currentMode === 'login' ? 'Sign In' : 'Create Account';
     }
 
-    async function signInWithGoogle() {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: window.location.origin + '/dashboard'
-        }
-      });
-      if (error) showError(error.message);
-    }
-
-    // Check if already logged in
     async function checkSession() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        window.location.href = '/dashboard';
+      var session = await sb.auth.getSession();
+      if (session.data.session) {
+        window.location.href = '/dashboard.html';
       }
     }
 
