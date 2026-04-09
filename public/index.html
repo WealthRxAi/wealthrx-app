@@ -4,21 +4,23 @@
   <meta charset="UTF-8">
   <title>WealthRx</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>body { background: #0A0E0D; }</style>
+</head>
+<body>
   <script>
-    const SUPABASE_URL = 'https://rvlipquyxkehiqhgptai.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2bGlwcXV5eGtlaGlxaGdwdGFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2OTcxMDIsImV4cCI6MjA5MTI3MzEwMn0.r2Uh5r21dUknjf-XbipbOeuHs8FwM8KNJNC9ZvpmSXI';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    var SUPABASE_URL = 'https://rvlipquyxkehiqhgptai.supabase.co';
+    var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2bGlwcXV5eGtlaGlxaGdwdGFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2OTcxMDIsImV4cCI6MjA5MTI3MzEwMn0.r2Uh5r21dUknjf-XbipbOeuHs8FwM8KNJNC9ZvpmSXI';
+    var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     async function redirect() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        window.location.href = '/dashboard';
+      var session = await sb.auth.getSession();
+      if (session.data.session) {
+        window.location.href = '/dashboard.html';
       } else {
-        window.location.href = '/login';
+        window.location.href = '/login.html';
       }
     }
     redirect();
   </script>
-</head>
-<body style="background:#0A0E0D;"></body>
+</body>
 </html>
