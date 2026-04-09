@@ -1,0 +1,10 @@
+{
+  "name": "wealthrx-app",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "plaid": "^23.0.0",
+    "@anthropic-ai/sdk": "^0.24.0"
+  }
+}
