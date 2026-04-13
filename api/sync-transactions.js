@@ -108,15 +108,15 @@ async function categorizeTransactions(transactions, userProfile) {
     '- "name": the original transaction name\n' +
     '- "vendor": clean vendor name (e.g., "AMZN Mktp US*2K4" becomes "Amazon")\n' +
     '- "category": one of these EXACT categories: "Office Supplies", "Software", "Meals", "Vehicle & Travel", "Equipment", "Professional Services", "Internet & Phone", "Advertising", "Insurance", "Education", "Rent & Utilities", "Bank Fees", "Shipping", "Contractor Payments", "Personal", "Income", "Transfer"\n' +
-    '- "is_deductible": true ONLY if clearly a business expense. false for personal. false for ambiguous items that need review.\n' +
-    '- "deduction_percent": 100 for fully deductible business expenses, 50 for meals (business meals only), ' + (userProfile.vehicle_business_pct || 0) + ' for vehicle/gas expenses, 0 for personal items, 0 for items needing review\n' +
+    '- "is_deductible": true if it is likely a business expense, even if needs_review is true. Only set false for clearly personal items like gyms, groceries, entertainment, personal shopping.\n' +
+'- "deduction_percent": 100 for fully deductible business expenses, 50 for ALL meals at restaurants/fast food, ' + (userProfile.vehicle_business_pct || 0) + ' for vehicle/gas/Uber/Lyft expenses, 0 ONLY for clearly personal items.\n' +
     '- "needs_review": true if the transaction is ambiguous and the user should confirm whether it is business or personal. Examples: Amazon, Walmart, restaurants, Uber, gas stations\n' +
     '- "irs_reference": the IRS publication and section number (e.g., "Pub 535, Sec 162" or "Pub 463, Sec 274(k)")\n' +
     '- "irs_link": the IRS.gov URL for the relevant publication (e.g., "https://www.irs.gov/publications/p535")\n' +
     '- "irs_explanation": a plain-English explanation (15-20 words) of WHY this is or is not deductible, referencing the IRS rule\n' +
     '- "note": a brief 5-10 word summary of the categorization decision\n\n' +
     'CRITICAL RULES:\n' +
-    '1. When in doubt, set needs_review to true and is_deductible to false. It is BETTER to ask the user than to incorrectly claim a deduction.\n' +
+    '1. When in doubt, set needs_review to true BUT still set is_deductible to true with your best estimate of deduction_percent. The user will confirm or deny. Only set is_deductible to false for CLEARLY personal items.\n' +
     '2. Meals at restaurants are ALWAYS 50% deductible maximum, never 100%.\n' +
     '3. If the account is "mixed" personal and business, be MORE conservative — flag more items as needs_review.\n' +
     '4. If the account is "business_only", be more confident in marking business expenses as deductible.\n' +
