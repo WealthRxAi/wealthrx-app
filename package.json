@@ -1,0 +1,9 @@
+json{
+  "name": "wealthrx-app",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "plaid": "^26.0.0",
+    "@supabase/supabase-js": "^2.49.0",
+    "@anthropic-ai/sdk": "^0.39.0"
+  }
