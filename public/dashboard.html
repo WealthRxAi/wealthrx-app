@@ -23,13 +23,14 @@
       display: flex; align-items: center; justify-content: center;
     }
     .logo-text .wealth { font-family: 'Instrument Serif', serif; font-size: 22px; }
-    .logo-text .rx { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 19px; color: #10A37F; }
-    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .logo-text .rx { font-weight: 700; font-size: 19px; color: #10A37F; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
     .nav-btn {
       padding: 8px 16px; border-radius: 8px; font-size: 13px;
       font-family: 'DM Sans', sans-serif; cursor: pointer; border: none; font-weight: 600;
     }
     .btn-export { background: rgba(16,163,127,0.12); color: #10A37F; border: 1px solid rgba(16,163,127,0.2); }
+    .btn-sync { background: rgba(250,250,248,0.06); color: rgba(250,250,248,0.6); border: 1px solid rgba(250,250,248,0.08); }
     .btn-connect { background: linear-gradient(135deg, #0D7C5F, #10A37F); color: #FAFAF8; }
     .btn-signout { background: transparent; color: rgba(250,250,248,0.4); border: 1px solid rgba(250,250,248,0.08); }
     .main { padding: 80px 24px 40px; max-width: 1100px; margin: 0 auto; }
@@ -37,15 +38,12 @@
     .welcome h1 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 28px; }
     .welcome p { color: rgba(250,250,248,0.4); font-size: 14px; font-weight: 300; margin-top: 4px; }
     .vitals { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 32px; }
-    .vital-card {
-      background: rgba(250,250,248,0.025); border: 1px solid rgba(250,250,248,0.05);
-      border-radius: 14px; padding: 20px;
-    }
+    .vital-card { background: rgba(250,250,248,0.025); border: 1px solid rgba(250,250,248,0.05); border-radius: 14px; padding: 20px; }
     .vital-label { font-size: 12px; font-weight: 500; color: rgba(250,250,248,0.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
     .vital-value { font-family: 'Instrument Serif', serif; font-size: 32px; }
     .vital-value.green { color: #10A37F; }
     .vital-sub { font-size: 12px; color: rgba(250,250,248,0.35); margin-top: 4px; }
-    .vital-change { display: inline-flex; align-items: center; gap: 3px; font-size: 12px; font-weight: 600; margin-top: 6px; padding: 2px 8px; border-radius: 100px; color: #10A37F; background: rgba(16,163,127,0.1); }
+    .vital-change { display: inline-flex; font-size: 12px; font-weight: 600; margin-top: 6px; padding: 2px 8px; border-radius: 100px; color: #10A37F; background: rgba(16,163,127,0.1); }
     .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .section-header h2 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 22px; }
     .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
@@ -63,21 +61,21 @@
       color: rgba(250,250,248,0.5); outline: none;
     }
     .categories { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 32px; }
-    .cat-card {
-      background: rgba(250,250,248,0.025); border: 1px solid rgba(250,250,248,0.05);
-      border-radius: 12px; padding: 18px; display: flex; justify-content: space-between; align-items: center;
-    }
+    .cat-card { background: rgba(250,250,248,0.025); border: 1px solid rgba(250,250,248,0.05); border-radius: 12px; padding: 18px; display: flex; justify-content: space-between; align-items: center; }
     .cat-info { display: flex; align-items: center; gap: 12px; }
     .cat-icon { width: 38px; height: 38px; border-radius: 10px; background: rgba(16,163,127,0.1); display: flex; align-items: center; justify-content: center; font-size: 18px; }
     .cat-name { font-size: 14px; font-weight: 500; }
     .cat-count { font-size: 12px; color: rgba(250,250,248,0.35); }
     .cat-amount { font-family: 'Instrument Serif', serif; font-size: 22px; color: #10A37F; }
     .tx-item {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 20px; gap: 12px;
       background: rgba(250,250,248,0.015); border: 1px solid rgba(250,250,248,0.04);
-      border-radius: 12px; margin-bottom: 8px;
+      border-radius: 12px; margin-bottom: 8px; overflow: hidden;
     }
+    .tx-main {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; gap: 12px; cursor: pointer;
+    }
+    .tx-main:hover { background: rgba(250,250,248,0.02); }
     .tx-left { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; }
     .tx-status { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
     .tx-status.deductible { background: rgba(16,163,127,0.12); }
@@ -91,6 +89,46 @@
     .tx-tag.deductible { background: rgba(16,163,127,0.12); color: #10A37F; }
     .tx-tag.partial { background: rgba(255,193,7,0.12); color: #ffc107; }
     .tx-tag.personal { background: rgba(255,80,80,0.08); color: #ff6b6b; }
+
+    /* IRS Reference Panel */
+    .tx-details {
+      display: none; padding: 0 20px 16px;
+      border-top: 1px solid rgba(250,250,248,0.04);
+    }
+    .tx-details.open { display: block; }
+    .irs-ref {
+      background: rgba(16,163,127,0.06); border: 1px solid rgba(16,163,127,0.12);
+      border-radius: 10px; padding: 14px; margin-top: 12px;
+    }
+    .irs-ref-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .irs-ref-code { font-size: 13px; font-weight: 600; color: #10A37F; }
+    .irs-ref-text { font-size: 13px; color: rgba(250,250,248,0.55); line-height: 1.5; }
+    .irs-ref-link { display: inline-block; margin-top: 8px; font-size: 12px; color: #10A37F; font-weight: 600; text-decoration: none; }
+    .irs-ref-link:hover { text-decoration: underline; }
+
+    /* Needs Review Buttons */
+    .review-buttons { display: flex; gap: 8px; margin-top: 12px; }
+    .review-btn {
+      padding: 8px 18px; border-radius: 8px; font-size: 13px;
+      font-family: 'DM Sans', sans-serif; font-weight: 600; cursor: pointer;
+      border: none; transition: all 0.2s;
+    }
+    .review-btn.yes {
+      background: rgba(16,163,127,0.15); color: #10A37F;
+      border: 1px solid rgba(16,163,127,0.25);
+    }
+    .review-btn.yes:hover { background: rgba(16,163,127,0.25); }
+    .review-btn.no {
+      background: rgba(255,80,80,0.08); color: #ff6b6b;
+      border: 1px solid rgba(255,80,80,0.15);
+    }
+    .review-btn.no:hover { background: rgba(255,80,80,0.15); }
+    .review-confirmed {
+      font-size: 13px; color: #10A37F; font-weight: 600; margin-top: 12px;
+      display: flex; align-items: center; gap: 6px;
+    }
+
+    /* Empty State */
     .empty-state {
       text-align: center; padding: 80px 24px;
       background: rgba(250,250,248,0.015); border: 1px dashed rgba(250,250,248,0.08);
@@ -105,7 +143,6 @@
       background: linear-gradient(135deg, #0D7C5F, #10A37F);
       color: #FAFAF8; border: none; font-family: 'DM Sans', sans-serif;
       font-weight: 700; font-size: 15px; cursor: pointer;
-      box-shadow: 0 4px 20px rgba(13,124,95,0.3);
     }
     .health-score {
       background: linear-gradient(135deg, rgba(13,124,95,0.12), rgba(16,163,127,0.06));
@@ -117,9 +154,15 @@
     .score-bar { width: 100%; max-width: 300px; height: 8px; margin: 16px auto 0; background: rgba(250,250,248,0.05); border-radius: 100px; overflow: hidden; }
     .score-fill { height: 100%; border-radius: 100px; background: linear-gradient(90deg, #0D7C5F, #10A37F); }
     .loading { display: flex; align-items: center; justify-content: center; min-height: 100vh; font-size: 16px; color: rgba(250,250,248,0.4); }
+    .disclaimer {
+      margin-top: 40px; padding: 16px; border-radius: 10px;
+      background: rgba(250,250,248,0.02); border: 1px solid rgba(250,250,248,0.04);
+      font-size: 11px; color: rgba(250,250,248,0.25); line-height: 1.6; text-align: center;
+    }
     @media (max-width: 768px) {
       .vitals { grid-template-columns: repeat(2, 1fr); }
       .main { padding: 72px 16px 40px; }
+      .nav-right .btn-export, .nav-right .btn-sync { display: none; }
     }
     @media (max-width: 480px) { .vitals { grid-template-columns: 1fr; } }
   </style>
@@ -131,14 +174,14 @@
       <div class="logo">
         <div class="logo-icon">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FAFAF8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
-            <polyline points="16 7 22 7 22 13"/>
+            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
           </svg>
         </div>
         <div class="logo-text"><span class="wealth">Wealth</span><span class="rx">Rx</span></div>
       </div>
       <div class="nav-right">
-        <button class="nav-btn btn-export" onclick="exportExcel()" id="export-btn" style="display:none;">Export Excel</button>
+        <button class="nav-btn btn-sync" onclick="resyncTransactions()" id="sync-btn" style="display:none;">↻ Refresh</button>
+        <button class="nav-btn btn-export" onclick="exportExcel()" id="export-btn" style="display:none;">📥 Export</button>
         <button class="nav-btn btn-connect" onclick="connectBank()" id="connect-btn">+ Connect Bank</button>
         <button class="nav-btn btn-signout" onclick="signOut()">Sign Out</button>
       </div>
@@ -152,12 +195,7 @@
         <div class="icon">🏦</div>
         <h3>Connect your bank to get started</h3>
         <p>WealthRx monitors your transactions in real time, categorizes every expense, and finds deductions you're missing.</p>
-        <button class="btn-connect-large" onclick="connectBank()">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
-          </svg>
-          Connect Bank Account
-        </button>
+        <button class="btn-connect-large" onclick="connectBank()">Connect Bank Account</button>
       </div>
       <div id="dashboard-content" style="display:none;">
         <div class="vitals">
@@ -207,6 +245,9 @@
           </select>
         </div>
         <div id="transactions-list"></div>
+        <div class="disclaimer">
+          WealthRx provides financial organization and educational tools. This is not tax, legal, or financial advice. WealthRx does not file tax returns. Consult a licensed CPA or tax professional for tax filing and financial planning decisions.
+        </div>
       </div>
     </div>
   </div>
@@ -214,7 +255,8 @@
   <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
   <script>
     var SUPABASE_URL = 'https://rvlipquyxkehiqhgptai.supabase.co';
-    var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2bGlwcXV5eGtlaGlxaGdwdGFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2OTcxMDIsImV4cCI6MjA5MTI3MzEwMn0.r2Uh5r21dUknjf-XbipbOeuHs8FwM8KNJNC9ZvpmSXI';
+    var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2bGlwcXV5eGtlaGlxaGdwdGFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2OTcxMDIsImV4cCI6MjA5MTI3MzEwMn0.r2Uh5r21dUknjf-XbipbOeuHs8FwM8KNJNC9ZvpmSXI
+';
     var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     var currentUser = null;
@@ -222,16 +264,13 @@
 
     async function init() {
       var sessionResult = await sb.auth.getSession();
-      if (!sessionResult.data.session) {
-        window.location.href = '/login.html';
-        return;
-      }
+      if (!sessionResult.data.session) { window.location.href = '/login.html'; return; }
       currentUser = sessionResult.data.session.user;
       document.getElementById('loading').style.display = 'none';
       document.getElementById('app').style.display = 'block';
       var name = (currentUser.user_metadata && currentUser.user_metadata.full_name) || currentUser.email.split('@')[0];
       document.getElementById('welcome-name').textContent = 'Welcome back, ' + name;
-     await checkBankConnection();
+      await checkBankConnection();
     }
 
     async function checkBankConnection() {
@@ -240,6 +279,7 @@
         document.getElementById('empty-state').style.display = 'none';
         document.getElementById('dashboard-content').style.display = 'block';
         document.getElementById('export-btn').style.display = 'block';
+        document.getElementById('sync-btn').style.display = 'block';
         await loadTransactions();
       } else {
         document.getElementById('empty-state').style.display = 'block';
@@ -249,24 +289,22 @@
 
     async function loadTransactions() {
       var result = await sb.from('transactions').select('*').eq('user_id', currentUser.id).order('date', { ascending: false }).limit(100);
-      if (result.data) {
-        transactions = result.data;
-        renderDashboard();
-      }
+      if (result.data) { transactions = result.data; renderDashboard(); }
     }
 
     function renderDashboard() {
       var now = new Date();
       var thisMonth = transactions.filter(function(t) {
-        var d = new Date(t.date);
-        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+        var d = new Date(t.date); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
       });
       var revenue = thisMonth.filter(function(t) { return t.amount > 0; }).reduce(function(s, t) { return s + t.amount; }, 0);
       var expenses = thisMonth.filter(function(t) { return t.amount < 0; }).reduce(function(s, t) { return s + Math.abs(t.amount); }, 0);
-      var deductions = transactions.filter(function(t) { return t.is_deductible; }).reduce(function(s, t) { return s + Math.abs(t.amount); }, 0);
-      var partialDeductions = transactions.filter(function(t) { return t.deduction_percent && t.deduction_percent < 100; })
-        .reduce(function(s, t) { return s + (Math.abs(t.amount) * t.deduction_percent / 100); }, 0);
-      var totalDeductions = deductions + partialDeductions;
+      var totalDeductions = 0;
+      transactions.forEach(function(t) {
+        if (t.is_deductible && t.deduction_percent > 0) {
+          totalDeductions += Math.abs(t.amount) * t.deduction_percent / 100;
+        }
+      });
       var taxSavings = totalDeductions * 0.25;
 
       document.getElementById('vital-revenue').textContent = '$' + revenue.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0});
@@ -290,11 +328,10 @@
     function renderCategories() {
       var cats = {};
       transactions.forEach(function(t) {
-        if (t.is_deductible || (t.deduction_percent && t.deduction_percent > 0)) {
+        if (t.is_deductible && t.deduction_percent > 0) {
           var cat = t.category || 'Uncategorized';
           if (!cats[cat]) cats[cat] = { total: 0, count: 0 };
-          var amt = t.deduction_percent ? Math.abs(t.amount) * t.deduction_percent / 100 : Math.abs(t.amount);
-          cats[cat].total += amt;
+          cats[cat].total += Math.abs(t.amount) * t.deduction_percent / 100;
           cats[cat].count += 1;
         }
       });
@@ -318,17 +355,102 @@
         list.innerHTML = '<p style="color:rgba(250,250,248,0.3);font-size:14px;text-align:center;padding:40px;">No transactions yet.</p>';
         return;
       }
-      txns.forEach(function(t) {
+      txns.forEach(function(t, index) {
         var statusClass, statusIcon, tagClass, tagText;
-       if (t.needs_review) { statusClass = 'partial'; statusIcon = '⚠️'; tagClass = 'partial'; tagText = (t.deduction_percent || 0) + '% DEDUCTIBLE — NEEDS REVIEW'; }
-else if (t.deduction_percent && t.deduction_percent > 0 && t.deduction_percent < 100) { statusClass = 'partial'; statusIcon = '⚠️'; tagClass = 'partial'; tagText = t.deduction_percent + '% DEDUCTIBLE'; }
-else if (t.is_deductible) { statusClass = 'deductible'; statusIcon = '✅'; tagClass = 'deductible'; tagText = 'TAX DEDUCTIBLE'; }
-else { statusClass = 'personal'; statusIcon = '❌'; tagClass = 'personal'; tagText = 'NOT DEDUCTIBLE'; }
+
+        if (t.needs_review && !t.user_confirmed) {
+          statusClass = 'partial'; statusIcon = '⚠️'; tagClass = 'partial';
+          tagText = (t.deduction_percent || 0) + '% DEDUCTIBLE — NEEDS REVIEW';
+        } else if (t.deduction_percent && t.deduction_percent > 0 && t.deduction_percent < 100) {
+          statusClass = 'partial'; statusIcon = '⚠️'; tagClass = 'partial';
+          tagText = t.deduction_percent + '% DEDUCTIBLE';
+        } else if (t.is_deductible) {
+          statusClass = 'deductible'; statusIcon = '✅'; tagClass = 'deductible';
+          tagText = 'TAX DEDUCTIBLE';
+        } else {
+          statusClass = 'personal'; statusIcon = '❌'; tagClass = 'personal';
+          tagText = 'NOT DEDUCTIBLE';
+        }
+
         var amount = Math.abs(t.amount);
         var sign = t.amount < 0 ? '-' : '+';
         var dateStr = new Date(t.date).toLocaleDateString('en-US', {month: 'short', day: 'numeric'});
-        list.innerHTML += '<div class="tx-item"><div class="tx-left"><div class="tx-status ' + statusClass + '">' + statusIcon + '</div><div><div class="tx-vendor">' + (t.vendor || t.name || 'Unknown') + '</div><div class="tx-category">' + (t.category || 'Uncategorized') + ' · ' + dateStr + '</div></div></div><div class="tx-right"><div class="tx-amount">' + sign + '$' + amount.toLocaleString('en-US', {minimumFractionDigits: 2}) + '</div><div class="tx-tag ' + tagClass + '">' + tagText + '</div></div></div>';
+
+        var irsHtml = '';
+        if (t.irs_reference && t.irs_reference !== '' && t.irs_reference !== 'N/A') {
+          irsHtml = '<div class="irs-ref">' +
+            '<div class="irs-ref-header"><span style="font-size:16px;">📖</span><span class="irs-ref-code">' + t.irs_reference + '</span></div>' +
+            '<div class="irs-ref-text">' + (t.irs_explanation || '') + '</div>' +
+            (t.irs_link && t.irs_link !== 'N/A' ? '<a class="irs-ref-link" href="' + t.irs_link + '" target="_blank">Read on IRS.gov →</a>' : '') +
+          '</div>';
+        }
+
+        var reviewHtml = '';
+        if (t.needs_review && !t.user_confirmed) {
+          reviewHtml = '<div class="review-buttons">' +
+            '<button class="review-btn yes" onclick="confirmTransaction(\'' + t.id + '\', true, event)">✅ Yes, Business</button>' +
+            '<button class="review-btn no" onclick="confirmTransaction(\'' + t.id + '\', false, event)">❌ No, Personal</button>' +
+          '</div>';
+        } else if (t.user_confirmed) {
+          reviewHtml = '<div class="review-confirmed">✓ You confirmed this as ' + (t.is_deductible ? 'business' : 'personal') + '</div>';
+        }
+
+        list.innerHTML += '<div class="tx-item" id="tx-' + t.id + '">' +
+          '<div class="tx-main" onclick="toggleDetails(\'' + t.id + '\')">' +
+            '<div class="tx-left">' +
+              '<div class="tx-status ' + statusClass + '">' + statusIcon + '</div>' +
+              '<div><div class="tx-vendor">' + (t.vendor || t.name || 'Unknown') + '</div>' +
+              '<div class="tx-category">' + (t.category || 'Uncategorized') + ' · ' + dateStr + '</div></div>' +
+            '</div>' +
+            '<div class="tx-right">' +
+              '<div class="tx-amount">' + sign + '$' + amount.toLocaleString('en-US', {minimumFractionDigits: 2}) + '</div>' +
+              '<div class="tx-tag ' + tagClass + '">' + tagText + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="tx-details" id="details-' + t.id + '">' +
+            irsHtml +
+            reviewHtml +
+          '</div>' +
+        '</div>';
       });
+    }
+
+    function toggleDetails(id) {
+      var el = document.getElementById('details-' + id);
+      el.classList.toggle('open');
+    }
+
+    async function confirmTransaction(txId, isBusiness, event) {
+      event.stopPropagation();
+      var btn = event.target;
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+
+      var updateData;
+      if (isBusiness) {
+        var tx = transactions.find(function(t) { return t.id === txId; });
+        var pct = tx && tx.deduction_percent > 0 ? tx.deduction_percent : 100;
+        updateData = { is_deductible: true, deduction_percent: pct, needs_review: false, user_confirmed: true };
+      } else {
+        updateData = { is_deductible: false, deduction_percent: 0, needs_review: false, user_confirmed: true };
+      }
+
+      var result = await sb.from('transactions').update(updateData).eq('id', txId);
+
+      if (!result.error) {
+        var idx = transactions.findIndex(function(t) { return t.id === txId; });
+        if (idx >= 0) {
+          transactions[idx].is_deductible = updateData.is_deductible;
+          transactions[idx].deduction_percent = updateData.deduction_percent;
+          transactions[idx].needs_review = false;
+          transactions[idx].user_confirmed = true;
+        }
+        renderDashboard();
+      } else {
+        alert('Error saving. Please try again.');
+        btn.disabled = false;
+        btn.textContent = isBusiness ? '✅ Yes, Business' : '❌ No, Personal';
+      }
     }
 
     function filterTime(btn, period) {
@@ -349,29 +471,27 @@ else { statusClass = 'personal'; statusIcon = '❌'; tagClass = 'personal'; tagT
       var filtered = transactions;
       if (value === 'deductible') filtered = transactions.filter(function(t) { return t.is_deductible; });
       else if (value === 'personal') filtered = transactions.filter(function(t) { return !t.is_deductible && (!t.deduction_percent || t.deduction_percent === 0); });
-      else if (value === 'review') filtered = transactions.filter(function(t) { return t.needs_review; });
+      else if (value === 'review') filtered = transactions.filter(function(t) { return t.needs_review && !t.user_confirmed; });
       renderTransactions(filtered);
     }
 
     async function connectBank() {
       try {
         var res = await fetch('/api/create-link-token', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ user_id: currentUser.id })
         });
         var data = await res.json();
+        if (data.error) { alert('Error: ' + data.error); return; }
         var handler = Plaid.create({
           token: data.link_token,
           onSuccess: async function(public_token, metadata) {
             await fetch('/api/exchange-token', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ public_token: public_token, user_id: currentUser.id, institution: metadata.institution })
             });
             await fetch('/api/sync-transactions', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ user_id: currentUser.id })
             });
             await checkBankConnection();
@@ -385,21 +505,36 @@ else { statusClass = 'personal'; statusIcon = '❌'; tagClass = 'personal'; tagT
       }
     }
 
+    async function resyncTransactions() {
+      var btn = document.getElementById('sync-btn');
+      btn.textContent = '↻ Syncing...';
+      btn.disabled = true;
+      try {
+        await fetch('/api/sync-transactions', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: currentUser.id })
+        });
+        await loadTransactions();
+      } catch (e) { console.error('Sync error:', e); }
+      btn.textContent = '↻ Refresh';
+      btn.disabled = false;
+    }
+
     async function exportExcel() {
       if (transactions.length === 0) { alert('No transactions to export.'); return; }
       var deductible = transactions.filter(function(t) { return t.is_deductible || (t.deduction_percent && t.deduction_percent > 0); });
       var personal = transactions.filter(function(t) { return !t.is_deductible && (!t.deduction_percent || t.deduction_percent === 0); });
-      var csv = 'WEALTHRX DEDUCTION REPORT\nGenerated: ' + new Date().toLocaleDateString() + '\n\nDEDUCTIBLE TRANSACTIONS\nDate,Vendor,Category,Amount,Deduction %,Deductible Amount\n';
+      var csv = 'WEALTHRX DEDUCTION REPORT\nGenerated: ' + new Date().toLocaleDateString() + '\n\nDEDUCTIBLE TRANSACTIONS\nDate,Vendor,Category,Amount,Deduction %,Deductible Amount,IRS Reference,IRS Explanation\n';
       deductible.forEach(function(t) {
         var pct = t.deduction_percent || 100;
         var deductAmt = Math.abs(t.amount) * pct / 100;
-        csv += t.date + ',"' + (t.vendor || t.name) + '","' + t.category + '",' + Math.abs(t.amount) + ',' + pct + '%,$' + deductAmt.toFixed(2) + '\n';
+        csv += t.date + ',"' + (t.vendor || t.name) + '","' + t.category + '",' + Math.abs(t.amount) + ',' + pct + '%,$' + deductAmt.toFixed(2) + ',"' + (t.irs_reference || '') + '","' + (t.irs_explanation || '') + '"\n';
       });
       var totalDed = deductible.reduce(function(s, t) { var pct = t.deduction_percent || 100; return s + Math.abs(t.amount) * pct / 100; }, 0);
-      csv += '\nTOTAL DEDUCTIONS,,,,,$' + totalDed.toFixed(2) + '\n';
-      csv += 'ESTIMATED TAX SAVINGS (25%),,,,,$' + (totalDed * 0.25).toFixed(2) + '\n\n';
-      csv += 'NON-DEDUCTIBLE TRANSACTIONS\nDate,Vendor,Category,Amount\n';
-      personal.forEach(function(t) { csv += t.date + ',"' + (t.vendor || t.name) + '","' + t.category + '",' + Math.abs(t.amount) + '\n'; });
+      csv += '\nTOTAL DEDUCTIONS,,,,,,$' + totalDed.toFixed(2) + '\n';
+      csv += 'ESTIMATED TAX SAVINGS (25%),,,,,,$' + (totalDed * 0.25).toFixed(2) + '\n\n';
+      csv += 'NON-DEDUCTIBLE TRANSACTIONS\nDate,Vendor,Category,Amount,Reason\n';
+      personal.forEach(function(t) { csv += t.date + ',"' + (t.vendor || t.name) + '","' + t.category + '",' + Math.abs(t.amount) + ',"' + (t.irs_explanation || '') + '"\n'; });
       var blob = new Blob([csv], { type: 'text/csv' });
       var url = URL.createObjectURL(blob);
       var a = document.createElement('a');
@@ -409,10 +544,7 @@ else { statusClass = 'personal'; statusIcon = '❌'; tagClass = 'personal'; tagT
       URL.revokeObjectURL(url);
     }
 
-    async function signOut() {
-      await sb.auth.signOut();
-      window.location.href = '/login.html';
-    }
+    async function signOut() { await sb.auth.signOut(); window.location.href = '/login.html'; }
 
     init();
   </script>
