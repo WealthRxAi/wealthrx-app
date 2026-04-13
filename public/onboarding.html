@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WealthRx — Set Up Your Business</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0A0E0D; color: #FAFAF8;
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh; display: flex;
+      align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    .container { width: 100%; max-width: 520px; }
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      justify-content: center; margin-bottom: 32px;
+    }
+    .logo-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: linear-gradient(135deg, #0D7C5F, #10A37F);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-text .wealth { font-family: 'Instrument Serif', serif; font-size: 28px; }
+    .logo-text .rx { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 24px; color: #10A37F; }
+    .progress-bar { width: 100%; height: 4px; background: rgba(250,250,248,0.06); border-radius: 100px; margin-bottom: 40px; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #0D7C5F, #10A37F); border-radius: 100px; transition: width 0.5s ease; }
+    .card {
+      background: rgba(250,250,248,0.025); border: 1px solid rgba(250,250,248,0.06);
+      border-radius: 16px; padding: 36px;
+    }
+    .step-label { color: #10A37F; font-size: 13px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+    h1 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 26px; margin-bottom: 8px; }
+    .subtitle { color: rgba(250,250,248,0.45); font-size: 14px; margin-bottom: 28px; font-weight: 300; line-height: 1.5; }
+    .options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+    .option {
+      padding: 16px 18px; border-radius: 12px;
+      border: 1px solid rgba(250,250,248,0.08); background: rgba(250,250,248,0.02);
+      cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 12px;
+    }
+    .option:hover { border-color: rgba(250,250,248,0.15); }
+    .option.selected { border-color: rgba(16,163,127,0.4); background: rgba(16,163,127,0.08); }
+    .option-icon { font-size: 22px; width: 36px; text-align: center; }
+    .option-text { flex: 1; }
+    .option-title { font-size: 15px; font-weight: 500; }
+    .option-desc { font-size: 12px; color: rgba(250,250,248,0.35); margin-top: 2px; }
+    .option-check {
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 2px solid rgba(250,250,248,0.15); display: flex;
+      align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .option.selected .option-check {
+      border-color: #10A37F; background: #10A37F;
+    }
+    .slider-field { margin-bottom: 24px; }
+    .slider-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .slider-label span { font-size: 14px; color: rgba(250,250,248,0.6); }
+    .slider-value { font-family: 'Instrument Serif', serif; font-size: 24px; color: #10A37F; }
+    input[type="range"] {
+      width: 100%; height: 6px; -webkit-appearance: none; appearance: none;
+      background: rgba(250,250,248,0.08); border-radius: 100px; outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
+      background: #10A37F; cursor: pointer; border: 3px solid #0A0E0D;
+      box-shadow: 0 0 10px rgba(16,163,127,0.4);
+    }
+    .buttons { display: flex; gap: 10px; margin-top: 28px; }
+    .btn-back {
+      padding: 14px 24px; border-radius: 10px; border: 1px solid rgba(250,250,248,0.1);
+      background: transparent; color: rgba(250,250,248,0.5); font-family: 'DM Sans', sans-serif;
+      font-weight: 600; font-size: 15px; cursor: pointer;
+    }
+    .btn-next {
+      flex: 1; padding: 14px; border-radius: 10px; border: none;
+      background: linear-gradient(135deg, #0D7C5F, #10A37F); color: #FAFAF8;
+      font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 15px;
+      cursor: pointer; box-shadow: 0 4px 20px rgba(13,124,95,0.3);
+    }
+    .btn-next:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-next:hover:not(:disabled) { opacity: 0.92; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FAFAF8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+          <polyline points="16 7 22 7 22 13"/>
+        </svg>
+      </div>
+      <div class="logo-text"><span class="wealth">Wealth</span><span class="rx">Rx</span></div>
+    </div>
+
+    <div class="progress-bar"><div class="progress-fill" id="progress" style="width:20%"></div></div>
+
+    <div class="card">
+      <!-- STEP 1: Business Type -->
+      <div id="step-1" class="step">
+        <div class="step-label">Step 1 of 5</div>
+        <h1>What kind of business do you run?</h1>
+        <p class="subtitle">This helps WealthRx understand which expenses are typical for your industry.</p>
+        <div class="options" id="business-type-options">
+          <div class="option" onclick="selectOption(this, 'business_type', 'freelance')">
+            <div class="option-icon">💻</div>
+            <div class="option-text">
+              <div class="option-title">Freelance / Consulting</div>
+              <div class="option-desc">Design, development, writing, marketing, etc.</div>
+            </div>
+            <div class="option-check"></div>
+          </div>
+          <div class="option" onclick="selectOption(this, 'business_type', 'ecommerce')">
+            <div class="option-icon">📦</div>
+            <div class="option-text">
+              <div class="option-title">E-commerce / Retail</div>
+              <div class="option-desc">Selling products online or in-person</div>
+            </div>
+            <div class="option-check"></div>
+          </div>
+          <div class="option" onclick="selectOption(this, 'business_type', 'service')">
+            <div class="option-icon">🔧</div>
+            <div class="option-text">
+              <div class="option-title">Service Business</div>
+              <div class="option-desc">Cleaning, landscaping, repair, beauty, etc.</div>
+            </div>
+            <div class="option-check"></div>
+          </div>
+          <div class="option" onclick="selectOption(this, 'business_type', 'content')">
+            <div class="option-icon">🎥</div>
+            <div class="option-text">
+              <div class="option-title">Content Creator / Influencer</div>
+              <div class="option-desc">YouTube, TikTok, Instagram, podcasting</div>
+            </div>
+            <div class="option-check"></div>
+          </div>
+          <div class="option" onclick="selectOption(this, 'business_type', 'realestate')">
+            <div class="option-icon">🏠</div>
+            <div class="option-text">
+              <div class="option-title">Real Estate / Property</div>
+              <div class="option-desc">Rental properties, flipping, management</div>
+            </div>
+            <div class="option-check"></div>
+          </div>
+          <div class="option" onclick="selectOption(this, 'business_type', 'healthcare')">
+            <div class="option-icon">🏥</div>
+            <div class="option-text">
+              <div class="option-title">Healthcare / Wellness</div>
+              <div class="option-desc">Medical practice, therapy, fitness, coaching</div>
+            </div>
+            <div class="option-check"></div>
+          </div>
+          <div class="option" onclick="selectOption(this, 'business_type', 'food')">
+            <div class="option-icon">🍽️</div>
+            <div class="option-text">
+              <div class="option-title">Food & Restaurant</div>
+              <div class="option-desc">Restaurant, catering, food truck, bakery</div>
+            </div>
+            <div class="option-check"></div>
+          </div>
+          <div class="option" onclick="selectOption(this, 'business_type', 'other')">
+            <div class="option-icon">📋</div>
+            <div class="option-text">
+              <div class="option-title">Other</div>
+              <div class="option-desc">Something else not listed here</div>
+            </div>
+            <div class="option-check"></div>
+          </div>
+        </div>
+        <div class="buttons">
+          <button class="btn-next" id="btn-1" disabled onclick="nextStep(2)">Continue</button>
+        </div>
+      </div>
+
+      <!-- STEP 2: Entity Type -->
+      <div id="step-2" class="step hidden">
+        <div class="step-label">Step 2 of 5</div>
+        <h1>How is your business structured?</h1>
+        <p class="subtitle">Your entity type affects which deductions apply and how taxes are calculated.</p>
+        <div class="options" id="entity-type-options">
+          <div class="option" onclick="selectOption(this, 'entity_type', 'sole_prop')">
+            <div class="option-icon">👤</div>
+            <div class="option-text">
+              <div class="option-title">Sole Proprietorship</div>
+              <div class="option-desc">No formal entity — filing on Schedule C</div>
+            </div>
+            <div class="option-check"></div>
+          </div>
+          <div class="option" onclick="selectOption(this, 'entity_type', 'llc')">
+            <div class="option-icon">📄</div>
+            <div class="option-text">
+              <div class="option-title">LLC (Single Member)</div>
+              <div class="option-desc">One-person LLC, taxed as disregarded entity</div>
+            </div>
+            <div class="option-check"></div>
+          </div>
+          <div class="option" onclick="selectOption(this, 'entity_type', 'llc_multi')">
+            <div class="option-icon">👥</div>
+            <div class="option-text">
+              <div class="option-title">LLC (Multi Member)</div>
+              <div class="option-desc">Partnership LLC with multiple owners</div>
+            </div>
+            <div class="option-check"></div>
+          </div>
+          <div class="option" onclick="selectOption(this, 'entity_type', 'scorp')">
+            <div class="option-icon">🏢</div>
+            <div class="option-text">
+              <div class="option-title">S-Corp</div>
+              <div class="option-desc">S-Corp election for pass-through taxation</div>
+            </div>
+            <div class="option-check"></div>
+          </div>
+          <div class="option" onclick="selectOption(this, 'entity_type', 'ccorp')">
+            <div class="option-icon">🏛️</div>
+            <div class="option-text">
+              <div class="option-title">C-Corp</div>
+              <div class="option-desc">Corporation taxed separately from owners</div>
+            </div>
+            <div class="option-check"></div>
+          </div>
+          <div class="option" onclick="selectOption(this, 'entity_type', 'not_sure')">
+            <div class="option-icon">❓</div>
+            <div class="option-text">
+              <div class="option-title">Not sure</div>
+              <div class="option-desc">WealthRx can help you figure this out</div>
+            </div>
+            <div class="option-check"></div>
+          </div>
+        </div>
+        <div class="buttons">
+          <button class="btn-back" onclick="prevStep(1)">Back</button>
+          <button class="btn-next" id="btn-2" disabled onclick="nextStep(3)">Continue</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Work Location -->
+      <div id="step-3" class="step hidden">
+        <div class="step-label">Step 3 of 5</div>
+        <h1>Where do you work from?</h1>
+        <p class="subtitle">This determines home office deductions and other location-based write-offs.</p>
+        <div class="options" id="work-location-options">
+          <div class="option" onclick="selectOption(this, 'work_location', 'home')">
+            <div class="option-icon">🏠</div>
+            <div class="option-text">
+              <div class="option-title">Home Office</div>
+              <div class="option-desc">I work primarily from home</div>
+            </div>
+            <div class="option-check"></div>
+          </div>
+          <div class="option" onclick="selectOption(this, 'work_location', 'rented')">
+            <div class="option-icon">🏢</div>
+            <div class="option-text">
+              <div class="option-title">Rented Office / Storefront</div>
+              <div class="option-desc">I pay rent for a separate workspace</div>
+            </div>
+            <div class="option-check"></div>
+          </div>
+          <div class="option" onclick="selectOption(this, 'work_location', 'coworking')">
+            <div class="option-icon">☕</div>
+            <div class="option-text">
+              <div class="option-title">Co-working Space</div>
+              <div class="option-desc">WeWork, Regus, or similar shared space</div>
+            </div>
+            <div class="option-check"></div>
+          </div>
+          <div class="option" onclick="selectOption(this, 'work_location', 'onsite')">
+            <div class="option-icon">🚗</div>
+            <div class="option-text">
+              <div class="option-title">On-site / Mobile</div>
+              <div class="option-desc">I work at client locations or on the road</div>
+            </div>
+            <div class="option-check"></div>
+          </div>
+          <div class="option" onclick="selectOption(this, 'work_location', 'mixed')">
+            <div class="option-icon">🔄</div>
+            <div class="option-text">
+              <div class="option-title">Mixed / Multiple</div>
+              <div class="option-desc">Combination of home, office, and on-site</div>
+            </div>
+            <div class="option-check"></div>
+          </div>
+        </div>
+        <div class="buttons">
+          <button class="btn-back" onclick="prevStep(2)">Back</button>
+          <button class="btn-next" id="btn-3" disabled onclick="nextStep(4)">Continue</button>
+        </div>
+      </div>
+
+      <!-- STEP 4: Vehicle Use -->
+      <div id="step-4" class="step hidden">
+        <div class="step-label">Step 4 of 5</div>
+        <h1>Do you use a vehicle for business?</h1>
+        <p class="subtitle">Vehicle expenses are one of the largest deductions for small businesses. The IRS requires tracking business vs. personal mileage.</p>
+        <div class="options" id="vehicle-options">
+          <div class="option" onclick="selectVehicle(this, 'yes')">
+            <div class="option-icon">🚗</div>
+            <div class="option-text">
+              <div class="option-title">Yes</div>
+              <div class="option-desc">I drive for business (meetings, deliveries, jobs, etc.)</div>
+            </div>
+            <div class="option-check"></div>
+          </div>
+          <div class="option" onclick="selectVehicle(this, 'no')">
+            <div class="option-icon">🚶</div>
+            <div class="option-text">
+              <div class="option-title">No</div>
+              <div class="option-desc">I don't use a vehicle for business purposes</div>
+            </div>
+            <div class="option-check"></div>
+          </div>
+        </div>
+        <div class="slider-field hidden" id="mileage-slider">
+          <div class="slider-label">
+            <span>Estimated business use</span>
+            <div class="slider-value" id="mileage-value">50%</div>
+          </div>
+          <input type="range" min="10" max="100" value="50" step="5" id="mileage-range" oninput="updateMileage(this.value)">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:rgba(250,250,248,0.25);margin-top:4px;">
+            <span>10%</span><span>50%</span><span>100%</span>
+          </div>
+        </div>
+        <div class="buttons">
+          <button class="btn-back" onclick="prevStep(3)">Back</button>
+          <button class="btn-next" id="btn-4" disabled onclick="nextStep(5)">Continue</button>
+        </div>
+      </div>
+
+      <!-- STEP 5: Account Type -->
+      <div id="step-5" class="step hidden">
+        <div class="step-label">Step 5 of 5</div>
+        <h1>Is this a business-only bank account?</h1>
+        <p class="subtitle">This is the most important question. If your account mixes personal and business transactions, WealthRx needs to separate them.</p>
+        <div class="options" id="account-type-options">
+          <div class="option" onclick="selectOption(this, 'account_type', 'business_only')">
+            <div class="option-icon">🏦</div>
+            <div class="option-text">
+              <div class="option-title">Business Only</div>
+              <div class="option-desc">This account is used exclusively for business</div>
+            </div>
+            <div class="option-check"></div>
+          </div>
+          <div class="option" onclick="selectOption(this, 'account_type', 'mixed')">
+            <div class="option-icon">🔀</div>
+            <div class="option-text">
+              <div class="option-title">Mixed Personal & Business</div>
+              <div class="option-desc">I use the same account for both</div>
+            </div>
+            <div class="option-check"></div>
+          </div>
+          <div class="option" onclick="selectOption(this, 'account_type', 'mostly_business')">
+            <div class="option-icon">📊</div>
+            <div class="option-text">
+              <div class="option-title">Mostly Business</div>
+              <div class="option-desc">Primarily business with occasional personal use</div>
+            </div>
+            <div class="option-check"></div>
+          </div>
+        </div>
+        <div class="buttons">
+          <button class="btn-back" onclick="prevStep(4)">Back</button>
+          <button class="btn-next" id="btn-5" disabled onclick="finishOnboarding()">Complete Setup</button>
+        </div>
+      </div>
+
+      <!-- DONE -->
+      <div id="step-done" class="step hidden" style="text-align:center;padding:48px 24px;">
+        <div style="font-size:48px;margin-bottom:16px;">✅</div>
+        <h1 style="text-align:center;">Your WealthRx profile is ready</h1>
+        <p class="subtitle" style="text-align:center;">WealthRx now knows your business and will categorize your transactions with maximum accuracy. Time to connect your bank.</p>
+        <button class="btn-next" onclick="window.location.href='/dashboard.html'" style="max-width:300px;margin:0 auto;">Go to Dashboard</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var SUPABASE_URL = 'https://rvlipquyxkehiqhgptai.supabase.co';
+    var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2bGlwcXV5eGtlaGlxaGdwdGFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2OTcxMDIsImV4cCI6MjA5MTI3MzEwMn0.r2Uh5r21dUknjf-XbipbOeuHs8FwM8KNJNC9ZvpmSXI';
+    var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    var currentUser = null;
+    var onboardingData = {
+      business_type: '',
+      entity_type: '',
+      work_location: '',
+      uses_vehicle: false,
+      vehicle_business_pct: 0,
+      account_type: ''
+    };
+
+    async function init() {
+      var session = await sb.auth.getSession();
+      if (!session.data.session) {
+        window.location.href = '/login.html';
+        return;
+      }
+      currentUser = session.data.session.user;
+
+      // Check if already onboarded
+      var result = await sb.from('profiles').select('business_type').eq('id', currentUser.id).single();
+      if (result.data && result.data.business_type && result.data.business_type !== '') {
+        window.location.href = '/dashboard.html';
+      }
+    }
+
+    function selectOption(el, field, value) {
+      var parent = el.parentElement;
+      parent.querySelectorAll('.option').forEach(function(o) { o.classList.remove('selected'); });
+      el.classList.add('selected');
+      onboardingData[field] = value;
+
+      var stepNum = el.closest('.step').id.split('-')[1];
+      document.getElementById('btn-' + stepNum).disabled = false;
+    }
+
+    function selectVehicle(el, value) {
+      var parent = el.parentElement;
+      parent.querySelectorAll('.option').forEach(function(o) { o.classList.remove('selected'); });
+      el.classList.add('selected');
+
+      if (value === 'yes') {
+        onboardingData.uses_vehicle = true;
+        onboardingData.vehicle_business_pct = 50;
+        document.getElementById('mileage-slider').classList.remove('hidden');
+      } else {
+        onboardingData.uses_vehicle = false;
+        onboardingData.vehicle_business_pct = 0;
+        document.getElementById('mileage-slider').classList.add('hidden');
+      }
+      document.getElementById('btn-4').disabled = false;
+    }
+
+    function updateMileage(val) {
+      document.getElementById('mileage-value').textContent = val + '%';
+      onboardingData.vehicle_business_pct = parseInt(val);
+    }
+
+    function nextStep(num) {
+      document.querySelectorAll('.step').forEach(function(s) { s.classList.add('hidden'); });
+      document.getElementById('step-' + num).classList.remove('hidden');
+      document.getElementById('progress').style.width = (num * 20) + '%';
+    }
+
+    function prevStep(num) {
+      document.querySelectorAll('.step').forEach(function(s) { s.classList.add('hidden'); });
+      document.getElementById('step-' + num).classList.remove('hidden');
+      document.getElementById('progress').style.width = (num * 20) + '%';
+    }
+
+    async function finishOnboarding() {
+      var btn = document.getElementById('btn-5');
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+
+      try {
+        var result = await sb.from('profiles').update({
+          business_type: onboardingData.business_type,
+          entity_type: onboardingData.entity_type,
+          work_location: onboardingData.work_location,
+          uses_vehicle: onboardingData.uses_vehicle,
+          vehicle_business_pct: onboardingData.vehicle_business_pct,
+          account_type: onboardingData.account_type,
+          onboarded: true
+        }).eq('id', currentUser.id);
+
+        if (result.error) throw result.error;
+
+        document.querySelectorAll('.step').forEach(function(s) { s.classList.add('hidden'); });
+        document.getElementById('step-done').classList.remove('hidden');
+        document.getElementById('progress').style.width = '100%';
+      } catch (error) {
+        console.error('Onboarding error:', error);
+        alert('Something went wrong. Please try again.');
+        btn.disabled = false;
+        btn.textContent = 'Complete Setup';
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
