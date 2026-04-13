@@ -231,7 +231,7 @@
       document.getElementById('app').style.display = 'block';
       var name = (currentUser.user_metadata && currentUser.user_metadata.full_name) || currentUser.email.split('@')[0];
       document.getElementById('welcome-name').textContent = 'Welcome back, ' + name;
-     window.location.reload();
+     await checkBankConnection();
     }
 
     async function checkBankConnection() {
