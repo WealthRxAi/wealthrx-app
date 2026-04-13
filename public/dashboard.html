@@ -320,9 +320,10 @@
       }
       txns.forEach(function(t) {
         var statusClass, statusIcon, tagClass, tagText;
-        if (t.is_deductible) { statusClass = 'deductible'; statusIcon = '✅'; tagClass = 'deductible'; tagText = 'TAX DEDUCTIBLE'; }
-        else if (t.deduction_percent && t.deduction_percent > 0) { statusClass = 'partial'; statusIcon = '⚠️'; tagClass = 'partial'; tagText = t.deduction_percent + '% DEDUCTIBLE'; }
-        else { statusClass = 'personal'; statusIcon = '❌'; tagClass = 'personal'; tagText = 'NOT DEDUCTIBLE'; }
+       if (t.needs_review) { statusClass = 'partial'; statusIcon = '⚠️'; tagClass = 'partial'; tagText = (t.deduction_percent || 0) + '% DEDUCTIBLE — NEEDS REVIEW'; }
+else if (t.deduction_percent && t.deduction_percent > 0 && t.deduction_percent < 100) { statusClass = 'partial'; statusIcon = '⚠️'; tagClass = 'partial'; tagText = t.deduction_percent + '% DEDUCTIBLE'; }
+else if (t.is_deductible) { statusClass = 'deductible'; statusIcon = '✅'; tagClass = 'deductible'; tagText = 'TAX DEDUCTIBLE'; }
+else { statusClass = 'personal'; statusIcon = '❌'; tagClass = 'personal'; tagText = 'NOT DEDUCTIBLE'; }
         var amount = Math.abs(t.amount);
         var sign = t.amount < 0 ? '-' : '+';
         var dateStr = new Date(t.date).toLocaleDateString('en-US', {month: 'short', day: 'numeric'});
