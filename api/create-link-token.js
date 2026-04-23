@@ -37,12 +37,13 @@ module.exports = async function handler(req, res) {
 
     var client = new PlaidApi(config);
 
-    var response = await client.linkTokenCreate({
+ var response = await client.linkTokenCreate({
       user: { client_user_id: user_id || 'test' },
       client_name: 'WealthRx',
       products: [Products.Transactions],
       country_codes: [CountryCode.Us],
-      language: 'en'
+      language: 'en',
+      webhook: 'https://app.wealthrx.ai/api/plaid-webhook'
     });
 
     return res.json({ link_token: response.data.link_token });
