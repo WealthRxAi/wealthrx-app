@@ -724,5 +724,155 @@
 
     init();
   </script>
+  <script>
+  // Register service worker for PWA + push notifications
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(function(reg) {
+          console.log('Service worker registered');
+        })
+        .catch(function(err) {
+          console.log('Service worker registration failed:', err);
+        });
+    });
+  }
+
+  // PWA Install Prompt
+  var deferredPrompt;
+  var installBanner;
+
+  window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    showInstallBanner();
+  });
+
+  function showInstallBanner() {
+    if (document.getElementById('pwa-install-banner')) return;
+    
+    var banner = document.createElement('div');
+    banner.id = 'pwa-install-banner';
+    banner.innerHTML = 
+      '<div style="position:fixed;bottom:20px;left:20px;right:20px;max-width:400px;margin:0 auto;' +
+      'background:linear-gradient(135deg,#0D7C5F,#10A37F);border-radius:14px;padding:16px 20px;' +
+      'display:flex;align-items:center;gap:14px;z-index:10000;box-shadow:0 8px 32px rgba(0,0,0,0.4);' +
+      'font-family:DM Sans,sans-serif;">' +
+      '<div style="font-size:24px;">📱</div>' +
+      '<div style="flex:1;color:#fff;">' +
+      '<div style="font-weight:700;font-size:14px;margin-bottom:2px;">Install WealthRx</div>' +
+      '<div style="font-size:12px;opacity:0.9;">Get alerts when new transactions arrive</div>' +
+      '</div>' +
+      '<button id="pwa-install-btn" style="padding:8px 16px;background:#fff;color:#0D7C5F;' +
+      'border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;">Install</button>' +
+      '<button id="pwa-dismiss-btn" style="padding:8px;background:transparent;color:rgba(255,255,255,0.7);' +
+      'border:none;font-size:18px;cursor:pointer;">×</button>' +
+      '</div>';
+    document.body.appendChild(banner);
+
+    document.getElementById('pwa-install-btn').addEventListener('click', function() {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function(result) {
+        if (result.outcome === 'accepted') {
+          console.log('PWA installed');
+          requestNotificationPermission();
+        }
+        deferredPrompt = null;
+        document.getElementById('pwa-install-banner').remove();
+      });
+    });
+
+    document.getElementById('pwa-dismiss-btn').addEventListener('click', function() {
+      document.getElementById('pwa-install-banner').remove();
+      localStorage.setItem('pwa-install-dismissed', Date.now());
+    });
+  }
+
+  // iOS install instructions (iOS doesn't support beforeinstallprompt)
+  function isIOS() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent);
+  }
+
+  function isInStandaloneMode() {
+    return window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+  }
+
+  if (isIOS() && !isInStandaloneMode() && !localStorage.getItem('ios-install-dismissed')) {
+    setTimeout(function() {
+      showIOSInstallBanner();
+    }, 5000);
+  }
+
+  function showIOSInstallBanner() {
+    var banner = document.createElement('div');
+    banner.id = 'ios-install-banner';
+    banner.innerHTML = 
+      '<div style="position:fixed;bottom:20px;left:20px;right:20px;max-width:400px;margin:0 auto;' +
+      'background:linear-gradient(135deg,#0D7C5F,#10A37F);border-radius:14px;padding:16px 20px;' +
+      'z-index:10000;box-shadow:0 8px 32px rgba(0,0,0,0.4);' +
+      'font-family:DM Sans,sans-serif;color:#fff;">' +
+      '<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">' +
+      '<div style="font-size:24px;">📱</div>' +
+      '<div style="font-weight:700;font-size:15px;flex:1;">Install WealthRx on your iPhone</div>' +
+      '<button id="ios-dismiss-btn" style="background:transparent;color:rgba(255,255,255,0.7);' +
+      'border:none;font-size:18px;cursor:pointer;">×</button>' +
+      '</div>' +
+      '<div style="font-size:13px;opacity:0.9;line-height:1.5;">' +
+      'Tap the Share button <span style="display:inline-block;vertical-align:middle;">⬆️</span>' +
+      ' at the bottom of Safari, then tap "Add to Home Screen" for instant access and notifications.' +
+      '</div>' +
+      '</div>';
+    document.body.appendChild(banner);
+
+    document.getElementById('ios-dismiss-btn').addEventListener('click', function() {
+      document.getElementById('ios-install-banner').remove();
+      localStorage.setItem('ios-install-dismissed', Date.now());
+    });
+  }
+
+  // Request push notification permission
+  async function requestNotificationPermission() {
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'granted') return;
+    if (Notification.permission === 'denied') return;
+
+    var permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      subscribeToPush();
+    }
+  }
+
+  async function subscribeToPush() {
+    try {
+      var reg = await navigator.serviceWorker.ready;
+      // In production, use VAPID keys from your server
+      // For now, just register that the user wants notifications
+      var subscription = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: 'YOUR_VAPID_PUBLIC_KEY'
+      });
+      
+      // Save subscription to database
+      if (currentUser) {
+        await sb.from('push_subscriptions').upsert({
+          user_id: currentUser.id,
+          endpoint: subscription.endpoint,
+          keys_p256dh: btoa(String.fromCharCode.apply(null, new Uint8Array(subscription.getKey('p256dh')))),
+          keys_auth: btoa(String.fromCharCode.apply(null, new Uint8Array(subscription.getKey('auth'))))
+        });
+      }
+    } catch (e) {
+      console.log('Push subscription failed:', e);
+    }
+  }
+
+  // Auto-request permission after user has been active for 30 seconds
+  setTimeout(function() {
+    if (Notification.permission === 'default' && isInStandaloneMode()) {
+      requestNotificationPermission();
+    }
+  }, 30000);
+</script>
 </body>
 </html>
