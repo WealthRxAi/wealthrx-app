@@ -372,12 +372,22 @@
       var sessionResult = await sb.auth.getSession();
       if (!sessionResult.data.session) { window.location.href = '/login.html'; return; }
       currentUser = sessionResult.data.session.user;
+      
+      // Check if user is approved - redirect to waitlist if not
+      var profileResult = await sb.from('profiles').select('onboarded, approved').eq('id', currentUser.id).single();
+      if (profileResult.data && profileResult.data.approved === false) {
+        window.location.href = '/waitlist.html';
+        return;
+      }
+      if (profileResult.data && !profileResult.data.onboarded) { 
+        window.location.href = '/onboarding.html'; 
+        return; 
+      }
+      
       document.getElementById('loading').style.display = 'none';
       document.getElementById('app').style.display = 'block';
       var name = (currentUser.user_metadata && currentUser.user_metadata.full_name) || currentUser.email.split('@')[0];
       document.getElementById('welcome-name').textContent = 'Welcome back, ' + name;
-      var profileResult = await sb.from('profiles').select('onboarded').eq('id', currentUser.id).single();
-      if (profileResult.data && !profileResult.data.onboarded) { window.location.href = '/onboarding.html'; return; }
       await checkBankConnection();
     }
 
