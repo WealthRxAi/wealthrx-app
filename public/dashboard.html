@@ -15,110 +15,49 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #0A0E0D; color: #FAFAF8; font-family: 'DM Sans', sans-serif; min-height: 100vh; }
-    .topnav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      padding: 12px 24px; height: 60px;
-      background: rgba(10,14,13,0.92); backdrop-filter: blur(24px);
-      border-bottom: 1px solid rgba(250,250,248,0.05);
-      display: flex; justify-content: space-between; align-items: center;
-    }
+    .topnav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 12px 24px; height: 60px; background: rgba(10,14,13,0.92); backdrop-filter: blur(24px); border-bottom: 1px solid rgba(250,250,248,0.05); display: flex; justify-content: space-between; align-items: center; }
     .logo { display: flex; align-items: center; gap: 8px; }
-    .logo-icon {
-      width: 34px; height: 34px; border-radius: 10px;
-      background: linear-gradient(135deg, #0D7C5F, #10A37F);
-      display: flex; align-items: center; justify-content: center;
-    }
+    .logo-icon { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, #0D7C5F, #10A37F); display: flex; align-items: center; justify-content: center; }
     .logo-text .wealth { font-family: 'Instrument Serif', serif; font-size: 22px; }
     .logo-text .rx { font-weight: 700; font-size: 19px; color: #10A37F; }
     .nav-right { display: flex; align-items: center; gap: 10px; }
-    .nav-btn {
-      padding: 8px 16px; border-radius: 8px; font-size: 13px;
-      font-family: 'DM Sans', sans-serif; cursor: pointer; border: none; font-weight: 600;
-      transition: all 0.2s;
-    }
+    .nav-btn { padding: 8px 16px; border-radius: 8px; font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; border: none; font-weight: 600; transition: all 0.2s; }
     .btn-export { background: rgba(16,163,127,0.12); color: #10A37F; border: 1px solid rgba(16,163,127,0.2); }
     .btn-sync { background: rgba(250,250,248,0.06); color: rgba(250,250,248,0.6); border: 1px solid rgba(250,250,248,0.08); }
     .btn-connect { background: linear-gradient(135deg, #0D7C5F, #10A37F); color: #FAFAF8; }
     .btn-signout { background: transparent; color: rgba(250,250,248,0.4); border: 1px solid rgba(250,250,248,0.08); }
     .nav-btn:hover { transform: translateY(-1px); }
-    .main { padding: 80px 24px 40px; max-width: 1100px; margin: 0 auto; }
+    .main { padding: 80px 24px 100px; max-width: 1100px; margin: 0 auto; }
     .welcome { margin-bottom: 24px; }
     .welcome h1 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 28px; }
     .welcome p { color: rgba(250,250,248,0.4); font-size: 14px; font-weight: 300; margin-top: 4px; }
 
-    /* HERO DEDUCTION BANNER */
-    .hero-banner {
-      background: linear-gradient(135deg, rgba(13,124,95,0.25), rgba(16,163,127,0.1));
-      border: 1px solid rgba(16,163,127,0.3);
-      border-radius: 20px; padding: 28px 32px; margin-bottom: 24px;
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 24px; flex-wrap: wrap; position: relative; overflow: hidden;
-    }
-    .hero-banner::before {
-      content: ''; position: absolute; top: -50%; right: -10%;
-      width: 400px; height: 400px; border-radius: 50%;
-      background: radial-gradient(circle, rgba(16,163,127,0.15) 0%, transparent 70%);
-      pointer-events: none;
-    }
+    .hero-banner { background: linear-gradient(135deg, rgba(13,124,95,0.25), rgba(16,163,127,0.1)); border: 1px solid rgba(16,163,127,0.3); border-radius: 20px; padding: 28px 32px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; position: relative; overflow: hidden; }
+    .hero-banner::before { content: ''; position: absolute; top: -50%; right: -10%; width: 400px; height: 400px; border-radius: 50%; background: radial-gradient(circle, rgba(16,163,127,0.15) 0%, transparent 70%); pointer-events: none; }
     .banner-left { flex: 1; min-width: 280px; position: relative; z-index: 1; }
-    .banner-eyebrow {
-      font-size: 12px; font-weight: 600; color: #10A37F;
-      letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .banner-eyebrow::before {
-      content: ''; width: 8px; height: 8px; border-radius: 50%;
-      background: #10A37F; animation: pulse 2s infinite;
-    }
+    .banner-eyebrow { font-size: 12px; font-weight: 600; color: #10A37F; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .banner-eyebrow::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #10A37F; animation: pulse 2s infinite; }
     @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity: 0.4; } }
-    .banner-amount {
-      font-family: 'Instrument Serif', serif; font-size: 52px;
-      color: #10A37F; line-height: 1; margin-bottom: 8px;
-    }
+    .banner-amount { font-family: 'Instrument Serif', serif; font-size: 52px; color: #10A37F; line-height: 1; margin-bottom: 8px; }
     .banner-caption { color: rgba(250,250,248,0.65); font-size: 15px; font-weight: 300; line-height: 1.5; }
     .banner-right { display: flex; flex-direction: column; gap: 12px; position: relative; z-index: 1; }
-    .banner-stat {
-      background: rgba(250,250,248,0.04); border: 1px solid rgba(250,250,248,0.06);
-      border-radius: 12px; padding: 14px 18px; min-width: 200px;
-    }
+    .banner-stat { background: rgba(250,250,248,0.04); border: 1px solid rgba(250,250,248,0.06); border-radius: 12px; padding: 14px 18px; min-width: 200px; }
     .banner-stat-label { font-size: 11px; color: rgba(250,250,248,0.5); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
     .banner-stat-value { font-family: 'Instrument Serif', serif; font-size: 22px; }
 
-    /* BANKS PANEL */
-    .banks-panel {
-      background: rgba(250,250,248,0.025); border: 1px solid rgba(250,250,248,0.05);
-      border-radius: 14px; padding: 20px; margin-bottom: 24px;
-    }
+    .banks-panel { background: rgba(250,250,248,0.025); border: 1px solid rgba(250,250,248,0.05); border-radius: 14px; padding: 20px; margin-bottom: 24px; }
     .banks-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
     .banks-panel-header h3 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 18px; }
-    .banks-panel-header button {
-      padding: 6px 14px; border-radius: 8px; background: rgba(16,163,127,0.12);
-      color: #10A37F; border: 1px solid rgba(16,163,127,0.2);
-      font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit;
-    }
-    .bank-row {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 12px 14px; background: rgba(250,250,248,0.015);
-      border: 1px solid rgba(250,250,248,0.04);
-      border-radius: 10px; margin-bottom: 6px; gap: 12px;
-    }
+    .banks-panel-header button { padding: 6px 14px; border-radius: 8px; background: rgba(16,163,127,0.12); color: #10A37F; border: 1px solid rgba(16,163,127,0.2); font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .bank-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: rgba(250,250,248,0.015); border: 1px solid rgba(250,250,248,0.04); border-radius: 10px; margin-bottom: 6px; gap: 12px; }
     .bank-info { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
-    .bank-icon {
-      width: 32px; height: 32px; border-radius: 8px;
-      background: rgba(16,163,127,0.12); display: flex; align-items: center;
-      justify-content: center; font-size: 16px; flex-shrink: 0;
-    }
+    .bank-icon { width: 32px; height: 32px; border-radius: 8px; background: rgba(16,163,127,0.12); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
     .bank-name { font-size: 14px; font-weight: 500; }
     .bank-status { font-size: 11px; color: rgba(250,250,248,0.4); margin-top: 2px; }
     .bank-balance { font-family: 'Instrument Serif', serif; font-size: 16px; color: #10A37F; margin-right: 12px; flex-shrink: 0; }
-    .btn-disconnect {
-      padding: 6px 12px; border-radius: 6px; background: transparent;
-      color: rgba(255,80,80,0.7); border: 1px solid rgba(255,80,80,0.2);
-      font-size: 11px; font-weight: 600; cursor: pointer; font-family: inherit; flex-shrink: 0;
-    }
+    .btn-disconnect { padding: 6px 12px; border-radius: 6px; background: transparent; color: rgba(255,80,80,0.7); border: 1px solid rgba(255,80,80,0.2); font-size: 11px; font-weight: 600; cursor: pointer; font-family: inherit; flex-shrink: 0; }
     .btn-disconnect:hover { background: rgba(255,80,80,0.08); color: #ff6b6b; }
 
-    /* VITALS */
     .vitals { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 32px; }
     .vital-card { background: rgba(250,250,248,0.025); border: 1px solid rgba(250,250,248,0.05); border-radius: 14px; padding: 20px; }
     .vital-label { font-size: 12px; font-weight: 500; color: rgba(250,250,248,0.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
@@ -129,20 +68,22 @@
 
     .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .section-header h2 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 22px; }
-    .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
-    .filter-btn {
-      padding: 8px 16px; border-radius: 100px; font-size: 13px;
-      font-family: 'DM Sans', sans-serif; cursor: pointer;
-      border: 1px solid rgba(250,250,248,0.08); background: transparent;
-      color: rgba(250,250,248,0.5); font-weight: 500;
-    }
+
+    .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; border: 1px solid rgba(250,250,248,0.08); background: transparent; color: rgba(250,250,248,0.5); font-weight: 500; }
     .filter-btn.active { background: rgba(16,163,127,0.12); color: #10A37F; border-color: rgba(16,163,127,0.2); }
-    select.filter-select {
-      padding: 8px 12px; border-radius: 100px; font-size: 13px;
-      font-family: 'DM Sans', sans-serif; cursor: pointer;
-      border: 1px solid rgba(250,250,248,0.08); background: rgba(250,250,248,0.03);
-      color: rgba(250,250,248,0.5); outline: none;
+    select.filter-select { padding: 8px 12px; border-radius: 100px; font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; border: 1px solid rgba(250,250,248,0.08); background: rgba(250,250,248,0.03); color: rgba(250,250,248,0.5); outline: none; }
+
+    /* SELECT ALL VISIBLE CHECKBOX */
+    .select-all-wrap {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 14px; border-radius: 100px;
+      background: rgba(250,250,248,0.03); border: 1px solid rgba(250,250,248,0.08);
+      cursor: pointer; font-size: 13px; color: rgba(250,250,248,0.6); font-weight: 500;
     }
+    .select-all-wrap:hover { background: rgba(250,250,248,0.06); color: #FAFAF8; }
+    .select-all-wrap input[type="checkbox"] { cursor: pointer; accent-color: #10A37F; }
+
     .categories { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 32px; }
     .cat-card { background: rgba(250,250,248,0.025); border: 1px solid rgba(250,250,248,0.05); border-radius: 12px; padding: 18px; display: flex; justify-content: space-between; align-items: center; }
     .cat-info { display: flex; align-items: center; gap: 12px; }
@@ -151,9 +92,15 @@
     .cat-count { font-size: 12px; color: rgba(250,250,248,0.35); }
     .cat-amount { font-family: 'Instrument Serif', serif; font-size: 22px; color: #10A37F; }
 
-    .tx-item { background: rgba(250,250,248,0.015); border: 1px solid rgba(250,250,248,0.04); border-radius: 12px; margin-bottom: 8px; overflow: hidden; }
-    .tx-main { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; gap: 12px; cursor: pointer; }
+    /* TRANSACTION WITH CHECKBOX */
+    .tx-item { background: rgba(250,250,248,0.015); border: 1px solid rgba(250,250,248,0.04); border-radius: 12px; margin-bottom: 8px; overflow: hidden; transition: all 0.15s; }
+    .tx-item.selected { border-color: rgba(16,163,127,0.4); background: rgba(16,163,127,0.04); }
+    .tx-main { display: flex; align-items: center; gap: 12px; padding: 16px 20px; cursor: pointer; }
     .tx-main:hover { background: rgba(250,250,248,0.02); }
+    .tx-checkbox {
+      width: 20px; height: 20px; cursor: pointer;
+      accent-color: #10A37F; flex-shrink: 0;
+    }
     .tx-left { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; }
     .tx-status { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
     .tx-status.deductible { background: rgba(16,163,127,0.12); }
@@ -167,104 +114,111 @@
     .tx-tag.deductible { background: rgba(16,163,127,0.12); color: #10A37F; }
     .tx-tag.partial { background: rgba(255,193,7,0.12); color: #ffc107; }
     .tx-tag.personal { background: rgba(255,80,80,0.08); color: #ff6b6b; }
+    .tx-more-btn {
+      background: transparent; border: none; color: rgba(250,250,248,0.3);
+      font-size: 18px; cursor: pointer; padding: 4px 8px; border-radius: 6px;
+      font-family: inherit;
+    }
+    .tx-more-btn:hover { background: rgba(250,250,248,0.06); color: #FAFAF8; }
 
     .tx-details { display: none; padding: 0 20px 16px; border-top: 1px solid rgba(250,250,248,0.04); }
     .tx-details.open { display: block; }
-    .irs-ref {
-      background: rgba(16,163,127,0.06); border: 1px solid rgba(16,163,127,0.12);
-      border-radius: 10px; padding: 14px; margin-top: 12px;
-    }
+    .irs-ref { background: rgba(16,163,127,0.06); border: 1px solid rgba(16,163,127,0.12); border-radius: 10px; padding: 14px; margin-top: 12px; }
     .irs-ref-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
     .irs-ref-code { font-size: 13px; font-weight: 600; color: #10A37F; }
     .irs-ref-text { font-size: 13px; color: rgba(250,250,248,0.55); line-height: 1.5; }
     .irs-ref-link { display: inline-block; margin-top: 8px; font-size: 12px; color: #10A37F; font-weight: 600; text-decoration: none; }
     .review-buttons { display: flex; gap: 8px; margin-top: 12px; }
-    .review-btn {
-      padding: 8px 18px; border-radius: 8px; font-size: 13px;
-      font-family: 'DM Sans', sans-serif; font-weight: 600; cursor: pointer;
-      border: none; transition: all 0.2s;
-    }
+    .review-btn { padding: 8px 18px; border-radius: 8px; font-size: 13px; font-family: 'DM Sans', sans-serif; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
     .review-btn.yes { background: rgba(16,163,127,0.15); color: #10A37F; border: 1px solid rgba(16,163,127,0.25); }
     .review-btn.no { background: rgba(255,80,80,0.08); color: #ff6b6b; border: 1px solid rgba(255,80,80,0.15); }
     .review-confirmed { font-size: 13px; color: #10A37F; font-weight: 600; margin-top: 12px; }
 
-    .empty-state {
-      text-align: center; padding: 60px 24px;
-      background: rgba(250,250,248,0.015); border: 1px dashed rgba(250,250,248,0.08);
-      border-radius: 16px; margin-bottom: 32px;
+    /* SELECT SIMILAR DROPDOWN */
+    .similar-menu {
+      position: absolute; z-index: 500;
+      background: #14191B; border: 1px solid rgba(250,250,248,0.1);
+      border-radius: 10px; padding: 6px; min-width: 240px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
     }
+    .similar-menu-item {
+      padding: 10px 14px; border-radius: 7px; cursor: pointer;
+      font-size: 13px; color: rgba(250,250,248,0.75);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .similar-menu-item:hover { background: rgba(16,163,127,0.1); color: #FAFAF8; }
+    .similar-menu-item.danger { color: rgba(255,80,80,0.8); }
+    .similar-menu-item.danger:hover { background: rgba(255,80,80,0.08); color: #ff6b6b; }
+    .similar-menu-header {
+      padding: 8px 14px 4px; font-size: 11px; color: rgba(250,250,248,0.35);
+      text-transform: uppercase; letter-spacing: 1px; font-weight: 600;
+    }
+    .similar-menu-divider { height: 1px; background: rgba(250,250,248,0.06); margin: 4px 0; }
+
+    /* FLOATING ACTION BAR */
+    .action-bar {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120%);
+      background: #14191B; border: 1px solid rgba(16,163,127,0.3);
+      border-radius: 16px; padding: 14px 18px;
+      display: flex; align-items: center; gap: 12px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      z-index: 900; transition: transform 0.3s ease;
+      max-width: calc(100vw - 32px);
+    }
+    .action-bar.open { transform: translateX(-50%) translateY(0); }
+    .action-bar-count {
+      font-family: 'Instrument Serif', serif; font-size: 18px;
+      color: #10A37F; padding-right: 12px; border-right: 1px solid rgba(250,250,248,0.08);
+      white-space: nowrap;
+    }
+    .action-bar-btn {
+      padding: 10px 16px; border-radius: 10px; font-size: 13px;
+      font-family: 'DM Sans', sans-serif; font-weight: 600; cursor: pointer;
+      border: none; white-space: nowrap;
+    }
+    .action-bar-btn.yes { background: rgba(16,163,127,0.18); color: #10A37F; border: 1px solid rgba(16,163,127,0.3); }
+    .action-bar-btn.yes:hover { background: rgba(16,163,127,0.28); }
+    .action-bar-btn.no { background: rgba(255,80,80,0.1); color: #ff6b6b; border: 1px solid rgba(255,80,80,0.2); }
+    .action-bar-btn.no:hover { background: rgba(255,80,80,0.18); }
+    .action-bar-btn.cancel { background: transparent; color: rgba(250,250,248,0.5); border: 1px solid rgba(250,250,248,0.1); }
+    .action-bar-btn.cancel:hover { color: #FAFAF8; border-color: rgba(250,250,248,0.2); }
+
+    .empty-state { text-align: center; padding: 60px 24px; background: rgba(250,250,248,0.015); border: 1px dashed rgba(250,250,248,0.08); border-radius: 16px; margin-bottom: 32px; }
     .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
     .empty-state h3 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 24px; margin-bottom: 8px; }
     .empty-state p { color: rgba(250,250,248,0.4); font-size: 15px; max-width: 400px; margin: 0 auto 24px; font-weight: 300; line-height: 1.6; }
     .empty-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-    .btn-connect-large {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 14px 28px; border-radius: 10px;
-      background: linear-gradient(135deg, #0D7C5F, #10A37F);
-      color: #FAFAF8; border: none; font-family: 'DM Sans', sans-serif;
-      font-weight: 700; font-size: 15px; cursor: pointer;
-    }
-    .btn-demo {
-      padding: 14px 28px; border-radius: 10px;
-      background: transparent; color: rgba(250,250,248,0.7);
-      border: 1px solid rgba(250,250,248,0.15); font-family: 'DM Sans', sans-serif;
-      font-weight: 600; font-size: 15px; cursor: pointer;
-    }
+    .btn-connect-large { display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px; border-radius: 10px; background: linear-gradient(135deg, #0D7C5F, #10A37F); color: #FAFAF8; border: none; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 15px; cursor: pointer; }
+    .btn-demo { padding: 14px 28px; border-radius: 10px; background: transparent; color: rgba(250,250,248,0.7); border: 1px solid rgba(250,250,248,0.15); font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 15px; cursor: pointer; }
     .btn-demo:hover { border-color: rgba(250,250,248,0.3); background: rgba(250,250,248,0.03); }
 
-    .demo-banner {
-      background: rgba(255,193,7,0.08); border: 1px solid rgba(255,193,7,0.2);
-      border-radius: 10px; padding: 10px 16px; margin-bottom: 16px;
-      display: flex; align-items: center; justify-content: space-between; gap: 12px;
-      font-size: 13px; color: #ffc107;
-    }
-    .btn-exit-demo {
-      padding: 6px 14px; border-radius: 6px; background: rgba(255,193,7,0.15);
-      color: #ffc107; border: none; font-size: 12px; font-weight: 600; cursor: pointer;
-      font-family: inherit;
-    }
+    .demo-banner { background: rgba(255,193,7,0.08); border: 1px solid rgba(255,193,7,0.2); border-radius: 10px; padding: 10px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 13px; color: #ffc107; }
+    .btn-exit-demo { padding: 6px 14px; border-radius: 6px; background: rgba(255,193,7,0.15); color: #ffc107; border: none; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; }
 
-    .health-score {
-      background: linear-gradient(135deg, rgba(13,124,95,0.12), rgba(16,163,127,0.06));
-      border: 1px solid rgba(16,163,127,0.15);
-      border-radius: 14px; padding: 24px; text-align: center; margin-bottom: 32px;
-    }
+    .health-score { background: linear-gradient(135deg, rgba(13,124,95,0.12), rgba(16,163,127,0.06)); border: 1px solid rgba(16,163,127,0.15); border-radius: 14px; padding: 24px; text-align: center; margin-bottom: 32px; }
     .score-number { font-family: 'Instrument Serif', serif; font-size: 64px; color: #10A37F; line-height: 1; }
     .score-label { font-size: 14px; color: rgba(250,250,248,0.5); margin-top: 8px; }
     .score-bar { width: 100%; max-width: 300px; height: 8px; margin: 16px auto 0; background: rgba(250,250,248,0.05); border-radius: 100px; overflow: hidden; }
     .score-fill { height: 100%; border-radius: 100px; background: linear-gradient(90deg, #0D7C5F, #10A37F); transition: width 1s; }
     .loading { display: flex; align-items: center; justify-content: center; min-height: 100vh; font-size: 16px; color: rgba(250,250,248,0.4); }
 
-    .connect-overlay {
-      position: fixed; inset: 0; background: rgba(10,14,13,0.9); backdrop-filter: blur(8px);
-      z-index: 1000; display: none; align-items: center; justify-content: center;
-    }
+    .connect-overlay { position: fixed; inset: 0; background: rgba(10,14,13,0.9); backdrop-filter: blur(8px); z-index: 1000; display: none; align-items: center; justify-content: center; }
     .connect-overlay.open { display: flex; }
-    .connect-card {
-      background: rgba(250,250,248,0.03); border: 1px solid rgba(250,250,248,0.08);
-      border-radius: 20px; padding: 48px; text-align: center; max-width: 420px;
-    }
-    .spinner {
-      width: 48px; height: 48px; margin: 0 auto 20px;
-      border: 3px solid rgba(16,163,127,0.2);
-      border-top-color: #10A37F; border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
+    .connect-card { background: rgba(250,250,248,0.03); border: 1px solid rgba(250,250,248,0.08); border-radius: 20px; padding: 48px; text-align: center; max-width: 420px; }
+    .spinner { width: 48px; height: 48px; margin: 0 auto 20px; border: 3px solid rgba(16,163,127,0.2); border-top-color: #10A37F; border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .connect-card h3 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 24px; margin-bottom: 8px; }
     .connect-card p { color: rgba(250,250,248,0.5); font-size: 14px; font-weight: 300; line-height: 1.6; }
 
-    .disclaimer {
-      margin-top: 40px; padding: 16px; border-radius: 10px;
-      background: rgba(250,250,248,0.02); border: 1px solid rgba(250,250,248,0.04);
-      font-size: 11px; color: rgba(250,250,248,0.25); line-height: 1.6; text-align: center;
-    }
+    .disclaimer { margin-top: 40px; padding: 16px; border-radius: 10px; background: rgba(250,250,248,0.02); border: 1px solid rgba(250,250,248,0.04); font-size: 11px; color: rgba(250,250,248,0.25); line-height: 1.6; text-align: center; }
     @media (max-width: 768px) {
       .vitals { grid-template-columns: repeat(2, 1fr); }
-      .main { padding: 72px 16px 40px; }
+      .main { padding: 72px 16px 120px; }
       .nav-right .btn-export, .nav-right .btn-sync { display: none; }
       .banner-amount { font-size: 40px; }
       .hero-banner { padding: 24px; }
+      .action-bar { padding: 10px 14px; gap: 8px; }
+      .action-bar-btn { padding: 8px 12px; font-size: 12px; }
     }
     @media (max-width: 480px) { .vitals { grid-template-columns: 1fr; } .banner-right { width: 100%; } }
   </style>
@@ -276,7 +230,7 @@
     <div class="connect-card">
       <div class="spinner"></div>
       <h3 id="overlay-title">Connecting to your bank...</h3>
-      <p id="overlay-text">WealthRx is securely pulling your transactions and analyzing them with AI. This takes about 15 seconds.</p>
+      <p id="overlay-text">WealthRx is securely pulling your transactions and analyzing them with AI.</p>
     </div>
   </div>
 
@@ -319,7 +273,6 @@
       </div>
 
       <div id="dashboard-content" style="display:none;">
-
         <div class="hero-banner" id="hero-banner">
           <div class="banner-left">
             <div class="banner-eyebrow">Deductions found year to date</div>
@@ -327,14 +280,8 @@
             <div class="banner-caption" id="banner-caption">WealthRx is watching your accounts 24/7 for deductions your CPA would miss.</div>
           </div>
           <div class="banner-right">
-            <div class="banner-stat">
-              <div class="banner-stat-label">Est. Tax Savings</div>
-              <div class="banner-stat-value" style="color:#10A37F;" id="banner-savings">$0</div>
-            </div>
-            <div class="banner-stat">
-              <div class="banner-stat-label">Transactions Tracked</div>
-              <div class="banner-stat-value" id="banner-count">0</div>
-            </div>
+            <div class="banner-stat"><div class="banner-stat-label">Est. Tax Savings</div><div class="banner-stat-value" style="color:#10A37F;" id="banner-savings">$0</div></div>
+            <div class="banner-stat"><div class="banner-stat-label">Transactions Tracked</div><div class="banner-stat-value" id="banner-count">0</div></div>
           </div>
         </div>
 
@@ -347,26 +294,10 @@
         </div>
 
         <div class="vitals">
-          <div class="vital-card">
-            <div class="vital-label">Cash on Hand</div>
-            <div class="vital-value" id="vital-cash">$0</div>
-            <div class="vital-change">Across all accounts</div>
-          </div>
-          <div class="vital-card">
-            <div class="vital-label">Monthly Revenue</div>
-            <div class="vital-value" id="vital-revenue">$0</div>
-            <div class="vital-sub">This month</div>
-          </div>
-          <div class="vital-card">
-            <div class="vital-label">Monthly Expenses</div>
-            <div class="vital-value" id="vital-expenses">$0</div>
-            <div class="vital-sub">This month</div>
-          </div>
-          <div class="vital-card">
-            <div class="vital-label">Deductions This Month</div>
-            <div class="vital-value green" id="vital-month-deductions">$0</div>
-            <div class="vital-change">This month</div>
-          </div>
+          <div class="vital-card"><div class="vital-label">Cash on Hand</div><div class="vital-value" id="vital-cash">$0</div><div class="vital-change">Across all accounts</div></div>
+          <div class="vital-card"><div class="vital-label">Monthly Revenue</div><div class="vital-value" id="vital-revenue">$0</div><div class="vital-sub">This month</div></div>
+          <div class="vital-card"><div class="vital-label">Monthly Expenses</div><div class="vital-value" id="vital-expenses">$0</div><div class="vital-sub">This month</div></div>
+          <div class="vital-card"><div class="vital-label">Deductions This Month</div><div class="vital-value green" id="vital-month-deductions">$0</div><div class="vital-change">This month</div></div>
         </div>
 
         <div class="health-score">
@@ -389,41 +320,52 @@
             <option value="personal">Personal Only</option>
             <option value="review">Needs Review</option>
           </select>
+          <label class="select-all-wrap">
+            <input type="checkbox" id="select-all-checkbox" onchange="toggleSelectAllVisible(this.checked)">
+            Select all visible
+          </label>
         </div>
         <div id="transactions-list"></div>
 
-        <div class="disclaimer">
-          WealthRx provides financial organization and educational tools. This is not tax, legal, or financial advice. WealthRx does not file tax returns. Consult a licensed CPA or tax professional for tax filing and financial planning decisions.
-        </div>
+        <div class="disclaimer">WealthRx provides financial organization and educational tools. This is not tax, legal, or financial advice. WealthRx does not file tax returns. Consult a licensed CPA or tax professional for tax filing and financial planning decisions.</div>
       </div>
     </div>
   </div>
 
+  <!-- FLOATING ACTION BAR -->
+  <div class="action-bar" id="action-bar">
+    <div class="action-bar-count" id="action-bar-count">0 selected</div>
+    <button class="action-bar-btn yes" onclick="bulkConfirm(true)">✅ Mark as Business</button>
+    <button class="action-bar-btn no" onclick="bulkConfirm(false)">❌ Mark as Personal</button>
+    <button class="action-bar-btn cancel" onclick="clearSelection()">Cancel</button>
+  </div>
+
+  <!-- SIMILAR SELECTION MENU (hidden by default) -->
+  <div class="similar-menu" id="similar-menu" style="display:none;"></div>
+
   <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
   <script>
     var SUPABASE_URL = 'https://rvlipquyxkehiqhgptai.supabase.co';
-    var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2bGlwcXV5eGtlaGlxaGdwdGFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2OTcxMDIsImV4cCI6MjA5MTI3MzEwMn0.r2Uh5r21dUknjf-XbipbOeuHs8FwM8KNJNC9ZvpmSXI';
+    var SUPABASE_ANON_KEY = 'YOUR_LEGACY_ANON_KEY';
     var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     var currentUser = null;
     var transactions = [];
+    var filteredTransactions = [];
     var isDemoMode = false;
+    var selectedIds = new Set();
 
     var demoTransactions = [
-      { id: 'd1', vendor: 'Adobe Creative Cloud', category: 'Software', amount: -54.99, date: new Date(Date.now() - 86400000).toISOString(), is_deductible: true, deduction_percent: 100, needs_review: false, user_confirmed: false, irs_reference: 'Pub 535, Sec 162', irs_link: 'https://www.irs.gov/publications/p535', irs_explanation: 'Software subscriptions for business use are fully deductible as ordinary business expenses.' },
+      { id: 'd1', vendor: 'Adobe Creative Cloud', category: 'Software', amount: -54.99, date: new Date(Date.now() - 86400000).toISOString(), is_deductible: true, deduction_percent: 100, needs_review: false, user_confirmed: false, irs_reference: 'Pub 535, Sec 162', irs_link: 'https://www.irs.gov/publications/p535', irs_explanation: 'Software subscriptions for business use are fully deductible.' },
       { id: 'd2', vendor: 'United Airlines', category: 'Vehicle & Travel', amount: -486.00, date: new Date(Date.now() - 2*86400000).toISOString(), is_deductible: true, deduction_percent: 100, needs_review: false, user_confirmed: false, irs_reference: 'Pub 463, Ch 1', irs_link: 'https://www.irs.gov/publications/p463', irs_explanation: 'Business travel expenses including flights are fully deductible.' },
-      { id: 'd3', vendor: 'Starbucks', category: 'Meals', amount: -18.40, date: new Date(Date.now() - 3*86400000).toISOString(), is_deductible: true, deduction_percent: 50, needs_review: true, user_confirmed: false, irs_reference: 'Pub 463, Ch 2, Sec 274(k)', irs_link: 'https://www.irs.gov/publications/p463', irs_explanation: 'Business meals are 50% deductible only if directly related to a business discussion.' },
-      { id: 'd4', vendor: 'Whole Foods', category: 'Personal', amount: -87.23, date: new Date(Date.now() - 4*86400000).toISOString(), is_deductible: false, deduction_percent: 0, needs_review: false, user_confirmed: false, irs_reference: 'Pub 535, Sec 162', irs_link: 'https://www.irs.gov/publications/p535', irs_explanation: 'Personal groceries are not deductible business expenses.' },
-      { id: 'd5', vendor: 'MacBook Pro', category: 'Equipment', amount: -2499.00, date: new Date(Date.now() - 5*86400000).toISOString(), is_deductible: true, deduction_percent: 100, needs_review: false, user_confirmed: false, irs_reference: 'Pub 946, Sec 179', irs_link: 'https://www.irs.gov/publications/p946', irs_explanation: 'Business equipment can be fully deducted in the year of purchase under Section 179.' },
-      { id: 'd6', vendor: 'Uber', category: 'Vehicle & Travel', amount: -24.80, date: new Date(Date.now() - 6*86400000).toISOString(), is_deductible: true, deduction_percent: 60, needs_review: true, user_confirmed: false, irs_reference: 'Pub 463, Ch 4, Sec 274(d)', irs_link: 'https://www.irs.gov/publications/p463', irs_explanation: 'Transportation expenses deductible by business use percentage.' },
-      { id: 'd7', vendor: 'Client Payment - ABC Corp', category: 'Income', amount: 12500.00, date: new Date(Date.now() - 7*86400000).toISOString(), is_deductible: false, deduction_percent: 0, needs_review: false, user_confirmed: false, irs_reference: '', irs_link: '', irs_explanation: 'Revenue from client services.' },
-      { id: 'd8', vendor: 'Legal Zoom', category: 'Professional Services', amount: -299.00, date: new Date(Date.now() - 8*86400000).toISOString(), is_deductible: true, deduction_percent: 100, needs_review: false, user_confirmed: false, irs_reference: 'Pub 535, Sec 162', irs_link: 'https://www.irs.gov/publications/p535', irs_explanation: 'Legal and professional services for business are fully deductible.' },
-      { id: 'd9', vendor: 'Google Workspace', category: 'Software', amount: -12.00, date: new Date(Date.now() - 9*86400000).toISOString(), is_deductible: true, deduction_percent: 100, needs_review: false, user_confirmed: false, irs_reference: 'Pub 535, Sec 162', irs_link: 'https://www.irs.gov/publications/p535', irs_explanation: 'Business email and productivity software fully deductible.' },
-      { id: 'd10', vendor: 'Chipotle', category: 'Meals', amount: -14.75, date: new Date(Date.now() - 10*86400000).toISOString(), is_deductible: true, deduction_percent: 50, needs_review: true, user_confirmed: false, irs_reference: 'Pub 463, Ch 2, Sec 274(k)', irs_link: 'https://www.irs.gov/publications/p463', irs_explanation: 'Business meals are 50% deductible if business-related.' },
-      { id: 'd11', vendor: 'Netflix', category: 'Personal', amount: -15.99, date: new Date(Date.now() - 11*86400000).toISOString(), is_deductible: false, deduction_percent: 0, needs_review: false, user_confirmed: false, irs_reference: 'Pub 535, Sec 162', irs_link: 'https://www.irs.gov/publications/p535', irs_explanation: 'Personal entertainment subscriptions not deductible.' },
-      { id: 'd12', vendor: 'Shell Gas', category: 'Vehicle & Travel', amount: -58.40, date: new Date(Date.now() - 12*86400000).toISOString(), is_deductible: true, deduction_percent: 60, needs_review: true, user_confirmed: false, irs_reference: 'Pub 463, Ch 4', irs_link: 'https://www.irs.gov/publications/p463', irs_explanation: 'Fuel expenses deductible by business use percentage.' },
-      { id: 'd13', vendor: 'Facebook Ads', category: 'Advertising', amount: -450.00, date: new Date(Date.now() - 13*86400000).toISOString(), is_deductible: true, deduction_percent: 100, needs_review: false, user_confirmed: false, irs_reference: 'Pub 535, Sec 162', irs_link: 'https://www.irs.gov/publications/p535', irs_explanation: 'Advertising and marketing expenses fully deductible for business.' },
-      { id: 'd14', vendor: 'WeWork', category: 'Rent & Utilities', amount: -299.00, date: new Date(Date.now() - 14*86400000).toISOString(), is_deductible: true, deduction_percent: 100, needs_review: false, user_confirmed: false, irs_reference: 'Pub 535, Sec 162', irs_link: 'https://www.irs.gov/publications/p535', irs_explanation: 'Co-working space rent is fully deductible business expense.' }
+      { id: 'd3', vendor: 'Starbucks', category: 'Meals', amount: -18.40, date: new Date(Date.now() - 3*86400000).toISOString(), is_deductible: true, deduction_percent: 50, needs_review: true, user_confirmed: false, irs_reference: 'Pub 463, Sec 274(k)', irs_link: 'https://www.irs.gov/publications/p463', irs_explanation: 'Business meals are 50% deductible if business-related.' },
+      { id: 'd4', vendor: 'Whole Foods', category: 'Personal', amount: -87.23, date: new Date(Date.now() - 4*86400000).toISOString(), is_deductible: false, deduction_percent: 0, needs_review: false, user_confirmed: false, irs_reference: 'Pub 535, Sec 162', irs_link: 'https://www.irs.gov/publications/p535', irs_explanation: 'Personal groceries are not deductible.' },
+      { id: 'd5', vendor: 'MacBook Pro', category: 'Equipment', amount: -2499.00, date: new Date(Date.now() - 5*86400000).toISOString(), is_deductible: true, deduction_percent: 100, needs_review: false, user_confirmed: false, irs_reference: 'Pub 946, Sec 179', irs_link: 'https://www.irs.gov/publications/p946', irs_explanation: 'Business equipment fully deductible under Section 179.' },
+      { id: 'd6', vendor: 'Uber', category: 'Vehicle & Travel', amount: -24.80, date: new Date(Date.now() - 6*86400000).toISOString(), is_deductible: true, deduction_percent: 60, needs_review: true, user_confirmed: false, irs_reference: 'Pub 463, Sec 274(d)', irs_link: 'https://www.irs.gov/publications/p463', irs_explanation: 'Transportation deductible by business use percentage.' },
+      { id: 'd7', vendor: 'Uber', category: 'Vehicle & Travel', amount: -18.20, date: new Date(Date.now() - 7*86400000).toISOString(), is_deductible: true, deduction_percent: 60, needs_review: true, user_confirmed: false, irs_reference: 'Pub 463, Sec 274(d)', irs_link: 'https://www.irs.gov/publications/p463', irs_explanation: 'Transportation deductible by business use percentage.' },
+      { id: 'd8', vendor: 'Uber', category: 'Vehicle & Travel', amount: -32.50, date: new Date(Date.now() - 8*86400000).toISOString(), is_deductible: true, deduction_percent: 60, needs_review: true, user_confirmed: false, irs_reference: 'Pub 463, Sec 274(d)', irs_link: 'https://www.irs.gov/publications/p463', irs_explanation: 'Transportation deductible by business use percentage.' },
+      { id: 'd9', vendor: 'Starbucks', category: 'Meals', amount: -8.50, date: new Date(Date.now() - 9*86400000).toISOString(), is_deductible: true, deduction_percent: 50, needs_review: true, user_confirmed: false, irs_reference: 'Pub 463, Sec 274(k)', irs_link: 'https://www.irs.gov/publications/p463', irs_explanation: 'Business meals 50% deductible.' },
+      { id: 'd10', vendor: 'Netflix', category: 'Personal', amount: -15.99, date: new Date(Date.now() - 10*86400000).toISOString(), is_deductible: false, deduction_percent: 0, needs_review: false, user_confirmed: false, irs_reference: 'Pub 535, Sec 162', irs_link: 'https://www.irs.gov/publications/p535', irs_explanation: 'Personal entertainment not deductible.' }
     ];
 
     async function init() {
@@ -434,12 +376,8 @@
       document.getElementById('app').style.display = 'block';
       var name = (currentUser.user_metadata && currentUser.user_metadata.full_name) || currentUser.email.split('@')[0];
       document.getElementById('welcome-name').textContent = 'Welcome back, ' + name;
-
       var profileResult = await sb.from('profiles').select('onboarded').eq('id', currentUser.id).single();
-      if (profileResult.data && !profileResult.data.onboarded) {
-        window.location.href = '/onboarding.html';
-        return;
-      }
+      if (profileResult.data && !profileResult.data.onboarded) { window.location.href = '/onboarding.html'; return; }
       await checkBankConnection();
     }
 
@@ -464,16 +402,10 @@
     }
 
     async function loadConnectedBanks() {
-      if (isDemoMode) {
-        document.getElementById('banks-panel').style.display = 'none';
-        return;
-      }
+      if (isDemoMode) { document.getElementById('banks-panel').style.display = 'none'; return; }
       var result = await sb.from('bank_connections').select('id, institution_name, balance, last_synced, connected_at').eq('user_id', currentUser.id).order('connected_at', { ascending: true });
       var list = document.getElementById('banks-list');
-      if (!result.data || result.data.length === 0) {
-        document.getElementById('banks-panel').style.display = 'none';
-        return;
-      }
+      if (!result.data || result.data.length === 0) { document.getElementById('banks-panel').style.display = 'none'; return; }
       document.getElementById('banks-panel').style.display = 'block';
       list.innerHTML = '';
       result.data.forEach(function(bank) {
@@ -484,25 +416,13 @@
     }
 
     async function disconnectBank(connectionId, bankName) {
-      var confirmed = confirm('Disconnect ' + bankName + '?\n\nWealthRx will no longer receive new transactions from this account. Your existing transaction history will remain.');
-      if (!confirmed) return;
+      if (!confirm('Disconnect ' + bankName + '?\n\nWealthRx will no longer receive new transactions. Existing history will remain.')) return;
       try {
-        var res = await fetch('/api/disconnect-bank', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user_id: currentUser.id, connection_id: connectionId })
-        });
+        var res = await fetch('/api/disconnect-bank', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: currentUser.id, connection_id: connectionId }) });
         var data = await res.json();
-        if (data.success) {
-          await loadConnectedBanks();
-          await loadTransactions();
-          alert(bankName + ' has been disconnected.');
-        } else {
-          alert('Failed to disconnect. ' + (data.error || 'Please try again.'));
-        }
-      } catch (e) {
-        alert('Error disconnecting bank. Please try again.');
-      }
+        if (data.success) { await loadConnectedBanks(); await loadTransactions(); alert(bankName + ' has been disconnected.'); }
+        else { alert('Failed to disconnect. ' + (data.error || 'Please try again.')); }
+      } catch (e) { alert('Error disconnecting bank.'); }
     }
 
     function enterDemoMode() {
@@ -519,15 +439,14 @@
     function exitDemoMode() {
       isDemoMode = false;
       transactions = [];
+      clearSelection();
       document.getElementById('demo-banner').style.display = 'none';
       checkBankConnection();
     }
 
     function renderDashboard() {
       var now = new Date();
-      var thisMonth = transactions.filter(function(t) {
-        var d = new Date(t.date); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-      });
+      var thisMonth = transactions.filter(function(t) { var d = new Date(t.date); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); });
       var revenue = thisMonth.filter(function(t) { return t.amount > 0; }).reduce(function(s, t) { return s + t.amount; }, 0);
       var expenses = thisMonth.filter(function(t) { return t.amount < 0; }).reduce(function(s, t) { return s + Math.abs(t.amount); }, 0);
 
@@ -538,9 +457,7 @@
           var amt = Math.abs(t.amount) * t.deduction_percent / 100;
           totalDeductions += amt;
           var d = new Date(t.date);
-          if (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) {
-            monthDeductions += amt;
-          }
+          if (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) monthDeductions += amt;
         }
       });
       var taxSavings = totalDeductions * 0.25;
@@ -550,20 +467,15 @@
       document.getElementById('banner-count').textContent = transactions.length;
       var reviewCount = transactions.filter(function(t) { return t.needs_review && !t.user_confirmed; }).length;
       var caption = 'WealthRx is watching your accounts 24/7 for deductions your CPA would miss.';
-      if (reviewCount > 0) {
-        caption = reviewCount + ' transaction' + (reviewCount > 1 ? 's need' : ' needs') + ' your review below to unlock more deductions.';
-      }
+      if (reviewCount > 0) caption = reviewCount + ' transaction' + (reviewCount > 1 ? 's need' : ' needs') + ' your review. Select multiple and confirm them at once to save time.';
       document.getElementById('banner-caption').textContent = caption;
 
       document.getElementById('vital-revenue').textContent = '$' + revenue.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0});
       document.getElementById('vital-expenses').textContent = '$' + expenses.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0});
       document.getElementById('vital-month-deductions').textContent = '$' + monthDeductions.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0});
 
-      if (isDemoMode) {
-        document.getElementById('vital-cash').textContent = '$24,350';
-      } else {
-        document.getElementById('vital-cash').textContent = '$0';
-      }
+      if (isDemoMode) document.getElementById('vital-cash').textContent = '$24,350';
+      else document.getElementById('vital-cash').textContent = '$0';
 
       var score = 50;
       if (revenue > 0) score += 15;
@@ -575,7 +487,8 @@
       document.getElementById('score-fill').style.width = score + '%';
 
       renderCategories();
-      renderTransactions(transactions);
+      filteredTransactions = transactions.slice();
+      renderTransactions(filteredTransactions);
     }
 
     function renderCategories() {
@@ -596,39 +509,27 @@
         var name = entry[0]; var data = entry[1];
         grid.innerHTML += '<div class="cat-card"><div class="cat-info"><div class="cat-icon">' + (icons[name] || '📋') + '</div><div><div class="cat-name">' + name + '</div><div class="cat-count">' + data.count + ' transaction' + (data.count !== 1 ? 's' : '') + '</div></div></div><div class="cat-amount">$' + data.total.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0}) + '</div></div>';
       });
-      if (entries.length === 0) {
-        grid.innerHTML = '<p style="color:rgba(250,250,248,0.3);font-size:14px;grid-column:1/-1;text-align:center;padding:20px;">No deductions found yet.</p>';
-      }
+      if (entries.length === 0) grid.innerHTML = '<p style="color:rgba(250,250,248,0.3);font-size:14px;grid-column:1/-1;text-align:center;padding:20px;">No deductions found yet.</p>';
     }
 
     function renderTransactions(txns) {
       var list = document.getElementById('transactions-list');
       list.innerHTML = '';
-      if (txns.length === 0) {
-        list.innerHTML = '<p style="color:rgba(250,250,248,0.3);font-size:14px;text-align:center;padding:40px;">No transactions yet.</p>';
-        return;
-      }
+      if (txns.length === 0) { list.innerHTML = '<p style="color:rgba(250,250,248,0.3);font-size:14px;text-align:center;padding:40px;">No transactions yet.</p>'; return; }
       txns.forEach(function(t) {
         var statusClass, statusIcon, tagClass, tagText;
-        if (t.needs_review && !t.user_confirmed) {
-          statusClass = 'partial'; statusIcon = '⚠️'; tagClass = 'partial';
-          tagText = (t.deduction_percent || 0) + '% DEDUCTIBLE — NEEDS REVIEW';
-        } else if (t.user_confirmed && t.is_deductible && t.deduction_percent < 100) {
-          statusClass = 'deductible'; statusIcon = '✅'; tagClass = 'deductible';
-          tagText = t.deduction_percent + '% DEDUCTIBLE ✓';
-        } else if (t.deduction_percent && t.deduction_percent > 0 && t.deduction_percent < 100) {
-          statusClass = 'partial'; statusIcon = '⚠️'; tagClass = 'partial';
-          tagText = t.deduction_percent + '% DEDUCTIBLE';
-        } else if (t.is_deductible) {
-          statusClass = 'deductible'; statusIcon = '✅'; tagClass = 'deductible';
-          tagText = 'TAX DEDUCTIBLE';
-        } else {
-          statusClass = 'personal'; statusIcon = '❌'; tagClass = 'personal';
-          tagText = 'NOT DEDUCTIBLE';
-        }
+        if (t.needs_review && !t.user_confirmed) { statusClass = 'partial'; statusIcon = '⚠️'; tagClass = 'partial'; tagText = (t.deduction_percent || 0) + '% — NEEDS REVIEW'; }
+        else if (t.user_confirmed && t.is_deductible && t.deduction_percent < 100) { statusClass = 'deductible'; statusIcon = '✅'; tagClass = 'deductible'; tagText = t.deduction_percent + '% DEDUCTIBLE ✓'; }
+        else if (t.deduction_percent && t.deduction_percent > 0 && t.deduction_percent < 100) { statusClass = 'partial'; statusIcon = '⚠️'; tagClass = 'partial'; tagText = t.deduction_percent + '% DEDUCTIBLE'; }
+        else if (t.is_deductible) { statusClass = 'deductible'; statusIcon = '✅'; tagClass = 'deductible'; tagText = 'TAX DEDUCTIBLE'; }
+        else { statusClass = 'personal'; statusIcon = '❌'; tagClass = 'personal'; tagText = 'NOT DEDUCTIBLE'; }
+
         var amount = Math.abs(t.amount);
         var sign = t.amount < 0 ? '-' : '+';
         var dateStr = new Date(t.date).toLocaleDateString('en-US', {month: 'short', day: 'numeric'});
+        var checked = selectedIds.has(t.id) ? 'checked' : '';
+        var selectedClass = selectedIds.has(t.id) ? 'selected' : '';
+
         var irsHtml = '';
         if (t.irs_reference && t.irs_reference !== '' && t.irs_reference !== 'N/A') {
           irsHtml = '<div class="irs-ref"><div class="irs-ref-header"><span style="font-size:16px;">📖</span><span class="irs-ref-code">' + t.irs_reference + '</span></div><div class="irs-ref-text">' + (t.irs_explanation || '') + '</div>' + (t.irs_link && t.irs_link !== 'N/A' ? '<a class="irs-ref-link" href="' + t.irs_link + '" target="_blank">Read on IRS.gov →</a>' : '') + '</div>';
@@ -639,11 +540,176 @@
         } else if (t.user_confirmed) {
           reviewHtml = '<div class="review-confirmed">✓ You confirmed this as ' + (t.is_deductible ? 'business' : 'personal') + '</div>';
         }
-        list.innerHTML += '<div class="tx-item" id="tx-' + t.id + '"><div class="tx-main" onclick="toggleDetails(\'' + t.id + '\')"><div class="tx-left"><div class="tx-status ' + statusClass + '">' + statusIcon + '</div><div><div class="tx-vendor">' + (t.vendor || t.name || 'Unknown') + '</div><div class="tx-category">' + (t.category || 'Uncategorized') + ' · ' + dateStr + '</div></div></div><div class="tx-right"><div class="tx-amount">' + sign + '$' + amount.toLocaleString('en-US', {minimumFractionDigits: 2}) + '</div><div class="tx-tag ' + tagClass + '">' + tagText + '</div></div></div><div class="tx-details" id="details-' + t.id + '">' + irsHtml + reviewHtml + '</div></div>';
+
+        list.innerHTML += '<div class="tx-item ' + selectedClass + '" id="tx-' + t.id + '">' +
+          '<div class="tx-main">' +
+            '<input type="checkbox" class="tx-checkbox" ' + checked + ' onclick="event.stopPropagation(); toggleSelect(\'' + t.id + '\', this.checked)" onchange="event.stopPropagation()">' +
+            '<div class="tx-left" onclick="toggleDetails(\'' + t.id + '\')">' +
+              '<div class="tx-status ' + statusClass + '">' + statusIcon + '</div>' +
+              '<div><div class="tx-vendor">' + (t.vendor || t.name || 'Unknown') + '</div><div class="tx-category">' + (t.category || 'Uncategorized') + ' · ' + dateStr + '</div></div>' +
+            '</div>' +
+            '<div class="tx-right" onclick="toggleDetails(\'' + t.id + '\')">' +
+              '<div class="tx-amount">' + sign + '$' + amount.toLocaleString('en-US', {minimumFractionDigits: 2}) + '</div>' +
+              '<div class="tx-tag ' + tagClass + '">' + tagText + '</div>' +
+            '</div>' +
+            '<button class="tx-more-btn" onclick="showSimilarMenu(event, \'' + t.id + '\')" title="Select similar">⋯</button>' +
+          '</div>' +
+          '<div class="tx-details" id="details-' + t.id + '">' + irsHtml + reviewHtml + '</div>' +
+        '</div>';
       });
+
+      updateActionBar();
     }
 
     function toggleDetails(id) { document.getElementById('details-' + id).classList.toggle('open'); }
+
+    function toggleSelect(txId, isChecked) {
+      if (isChecked) selectedIds.add(txId);
+      else selectedIds.delete(txId);
+      var el = document.getElementById('tx-' + txId);
+      if (el) { if (isChecked) el.classList.add('selected'); else el.classList.remove('selected'); }
+      updateActionBar();
+    }
+
+    function toggleSelectAllVisible(isChecked) {
+      filteredTransactions.forEach(function(t) {
+        if (isChecked) selectedIds.add(t.id);
+        else selectedIds.delete(t.id);
+      });
+      renderTransactions(filteredTransactions);
+    }
+
+    function clearSelection() {
+      selectedIds.clear();
+      document.getElementById('select-all-checkbox').checked = false;
+      renderTransactions(filteredTransactions);
+    }
+
+    function updateActionBar() {
+      var bar = document.getElementById('action-bar');
+      var count = selectedIds.size;
+      if (count > 0) {
+        bar.classList.add('open');
+        document.getElementById('action-bar-count').textContent = count + ' selected';
+      } else {
+        bar.classList.remove('open');
+      }
+    }
+
+    function showSimilarMenu(event, txId) {
+      event.stopPropagation();
+      var menu = document.getElementById('similar-menu');
+      var tx = transactions.find(function(t) { return t.id === txId; });
+      if (!tx) return;
+
+      var vendor = tx.vendor || tx.name || 'Unknown';
+      var category = tx.category || 'Uncategorized';
+      var amount = Math.abs(tx.amount);
+      var amountRange = amount < 10 ? 10 : amount < 50 ? 50 : amount < 100 ? 100 : 500;
+
+      menu.innerHTML =
+        '<div class="similar-menu-header">Select similar</div>' +
+        '<div class="similar-menu-item" onclick="selectByVendor(\'' + vendor.replace(/'/g, "\\'") + '\')">💼 All transactions from ' + vendor + '</div>' +
+        '<div class="similar-menu-item" onclick="selectByCategory(\'' + category + '\')">📂 All ' + category + ' transactions</div>' +
+        '<div class="similar-menu-item" onclick="selectByAmount(' + amountRange + ')">💰 All transactions under $' + amountRange + '</div>' +
+        '<div class="similar-menu-divider"></div>' +
+        '<div class="similar-menu-item" onclick="selectNeedsReview()">⚠️ All that need review</div>' +
+        '<div class="similar-menu-divider"></div>' +
+        '<div class="similar-menu-item danger" onclick="hideSimilarMenu()">Cancel</div>';
+
+      var rect = event.target.getBoundingClientRect();
+      menu.style.display = 'block';
+      menu.style.left = Math.min(rect.left, window.innerWidth - 260) + 'px';
+      menu.style.top = (rect.bottom + window.scrollY + 4) + 'px';
+
+      setTimeout(function() { document.addEventListener('click', hideSimilarMenuOnClick); }, 0);
+    }
+
+    function hideSimilarMenu() {
+      document.getElementById('similar-menu').style.display = 'none';
+      document.removeEventListener('click', hideSimilarMenuOnClick);
+    }
+
+    function hideSimilarMenuOnClick(e) {
+      if (!e.target.closest('#similar-menu')) hideSimilarMenu();
+    }
+
+    function selectByVendor(vendor) {
+      transactions.forEach(function(t) {
+        var v = t.vendor || t.name || '';
+        if (v.toLowerCase() === vendor.toLowerCase()) selectedIds.add(t.id);
+      });
+      hideSimilarMenu();
+      renderTransactions(filteredTransactions);
+    }
+
+    function selectByCategory(category) {
+      transactions.forEach(function(t) { if ((t.category || 'Uncategorized') === category) selectedIds.add(t.id); });
+      hideSimilarMenu();
+      renderTransactions(filteredTransactions);
+    }
+
+    function selectByAmount(maxAmount) {
+      transactions.forEach(function(t) { if (Math.abs(t.amount) < maxAmount) selectedIds.add(t.id); });
+      hideSimilarMenu();
+      renderTransactions(filteredTransactions);
+    }
+
+    function selectNeedsReview() {
+      transactions.forEach(function(t) { if (t.needs_review && !t.user_confirmed) selectedIds.add(t.id); });
+      hideSimilarMenu();
+      renderTransactions(filteredTransactions);
+    }
+
+    async function bulkConfirm(isBusiness) {
+      if (selectedIds.size === 0) return;
+      var ids = Array.from(selectedIds);
+
+      if (ids.length > 10) {
+        if (!confirm('You are about to mark ' + ids.length + ' transactions as ' + (isBusiness ? 'business' : 'personal') + '.\n\nThis will update your deductions and tax estimates. Continue?')) return;
+      }
+
+      if (isDemoMode) {
+        ids.forEach(function(id) {
+          var tx = transactions.find(function(t) { return t.id === id; });
+          if (tx) {
+            tx.is_deductible = isBusiness;
+            tx.deduction_percent = isBusiness ? (tx.deduction_percent || 100) : 0;
+            tx.needs_review = false;
+            tx.user_confirmed = true;
+          }
+        });
+        clearSelection();
+        renderDashboard();
+        return;
+      }
+
+      try {
+        for (var i = 0; i < ids.length; i++) {
+          var id = ids[i];
+          var tx = transactions.find(function(t) { return t.id === id; });
+          var pct = 100;
+          if (isBusiness && tx && tx.deduction_percent > 0) pct = tx.deduction_percent;
+          var updateData = isBusiness
+            ? { is_deductible: true, deduction_percent: pct, needs_review: false, user_confirmed: true }
+            : { is_deductible: false, deduction_percent: 0, needs_review: false, user_confirmed: true };
+          await sb.from('transactions').update(updateData).eq('id', id);
+          var idx = transactions.findIndex(function(t) { return t.id === id; });
+          if (idx >= 0) {
+            transactions[idx].is_deductible = updateData.is_deductible;
+            transactions[idx].deduction_percent = updateData.deduction_percent;
+            transactions[idx].needs_review = false;
+            transactions[idx].user_confirmed = true;
+          }
+        }
+        clearSelection();
+        renderDashboard();
+      } catch (e) {
+        alert('Error updating transactions. Some may have saved.');
+        clearSelection();
+        await loadTransactions();
+      }
+    }
 
     async function confirmTransaction(txId, isBusiness, event) {
       event.stopPropagation();
@@ -663,14 +729,11 @@
         return;
       }
 
-      var updateData;
-      if (isBusiness) {
-        var tx = transactions.find(function(t) { return t.id === txId; });
-        var pct = tx && tx.deduction_percent > 0 ? tx.deduction_percent : 100;
-        updateData = { is_deductible: true, deduction_percent: pct, needs_review: false, user_confirmed: true };
-      } else {
-        updateData = { is_deductible: false, deduction_percent: 0, needs_review: false, user_confirmed: true };
-      }
+      var tx = transactions.find(function(t) { return t.id === txId; });
+      var pct = tx && tx.deduction_percent > 0 ? tx.deduction_percent : 100;
+      var updateData = isBusiness
+        ? { is_deductible: true, deduction_percent: pct, needs_review: false, user_confirmed: true }
+        : { is_deductible: false, deduction_percent: 0, needs_review: false, user_confirmed: true };
       var result = await sb.from('transactions').update(updateData).eq('id', txId);
       if (!result.error) {
         var idx = transactions.findIndex(function(t) { return t.id === txId; });
@@ -681,10 +744,7 @@
           transactions[idx].user_confirmed = true;
         }
         renderDashboard();
-      } else {
-        alert('Error saving. Please try again.');
-        btn.disabled = false;
-      }
+      } else { alert('Error saving.'); btn.disabled = false; }
     }
 
     function filterTime(btn, period) {
@@ -692,12 +752,9 @@
       btn.classList.add('active');
       var now = new Date();
       var filtered = transactions;
-      if (period === 'month') {
-        filtered = transactions.filter(function(t) { var d = new Date(t.date); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); });
-      } else if (period === 'quarter') {
-        var qStart = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
-        filtered = transactions.filter(function(t) { return new Date(t.date) >= qStart; });
-      }
+      if (period === 'month') { filtered = transactions.filter(function(t) { var d = new Date(t.date); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); }); }
+      else if (period === 'quarter') { var qStart = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1); filtered = transactions.filter(function(t) { return new Date(t.date) >= qStart; }); }
+      filteredTransactions = filtered;
       renderTransactions(filtered);
     }
 
@@ -706,16 +763,14 @@
       if (value === 'deductible') filtered = transactions.filter(function(t) { return t.is_deductible; });
       else if (value === 'personal') filtered = transactions.filter(function(t) { return !t.is_deductible && (!t.deduction_percent || t.deduction_percent === 0); });
       else if (value === 'review') filtered = transactions.filter(function(t) { return t.needs_review && !t.user_confirmed; });
+      filteredTransactions = filtered;
       renderTransactions(filtered);
     }
 
     async function connectBank() {
       if (isDemoMode) { exitDemoMode(); return; }
       try {
-        var res = await fetch('/api/create-link-token', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user_id: currentUser.id })
-        });
+        var res = await fetch('/api/create-link-token', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: currentUser.id }) });
         var data = await res.json();
         if (data.error) { alert('Error: ' + data.error); return; }
         var handler = Plaid.create({
@@ -723,16 +778,10 @@
           onSuccess: async function(public_token, metadata) {
             document.getElementById('connect-overlay').classList.add('open');
             document.getElementById('overlay-title').textContent = 'Connecting to ' + (metadata.institution ? metadata.institution.name : 'your bank') + '...';
-            await fetch('/api/exchange-token', {
-              method: 'POST', headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ public_token: public_token, user_id: currentUser.id, institution: metadata.institution })
-            });
+            await fetch('/api/exchange-token', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ public_token: public_token, user_id: currentUser.id, institution: metadata.institution }) });
             document.getElementById('overlay-title').textContent = 'Analyzing transactions with AI...';
-            document.getElementById('overlay-text').textContent = 'Claude is categorizing every transaction and identifying deductions using IRS rules.';
-            await fetch('/api/sync-transactions', {
-              method: 'POST', headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ user_id: currentUser.id })
-            });
+            document.getElementById('overlay-text').textContent = 'Claude is categorizing and identifying deductions using IRS rules.';
+            await fetch('/api/sync-transactions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: currentUser.id }) });
             document.getElementById('overlay-title').textContent = 'All set!';
             document.getElementById('overlay-text').textContent = 'Loading your dashboard...';
             setTimeout(function() { window.location.reload(); }, 1500);
@@ -740,30 +789,22 @@
           onExit: function(err) { if (err) console.error('Plaid error:', err); }
         });
         handler.open();
-      } catch (error) {
-        console.error('Bank connection error:', error);
-        alert('Error connecting bank. Please try again.');
-      }
+      } catch (error) { alert('Error connecting bank.'); }
     }
 
     async function resyncTransactions() {
       var btn = document.getElementById('sync-btn');
-      btn.textContent = '↻ Syncing...';
-      btn.disabled = true;
+      btn.textContent = '↻ Syncing...'; btn.disabled = true;
       try {
-        await fetch('/api/sync-transactions', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user_id: currentUser.id })
-        });
+        await fetch('/api/sync-transactions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: currentUser.id }) });
         await loadTransactions();
         await loadConnectedBanks();
-      } catch (e) { console.error('Sync error:', e); }
-      btn.textContent = '↻ Refresh';
-      btn.disabled = false;
+      } catch (e) { }
+      btn.textContent = '↻ Refresh'; btn.disabled = false;
     }
 
     async function exportExcel() {
-      if (transactions.length === 0) { alert('No transactions to export.'); return; }
+      if (transactions.length === 0) { alert('No transactions.'); return; }
       var deductible = transactions.filter(function(t) { return t.is_deductible || (t.deduction_percent && t.deduction_percent > 0); });
       var personal = transactions.filter(function(t) { return !t.is_deductible && (!t.deduction_percent || t.deduction_percent === 0); });
       var csv = 'WEALTHRX DEDUCTION REPORT\nGenerated: ' + new Date().toLocaleDateString() + '\n\nDEDUCTIBLE TRANSACTIONS\nDate,Vendor,Category,Amount,Deduction %,Deductible Amount,IRS Reference,IRS Explanation\n';
@@ -790,43 +831,25 @@
 
     init();
 
-    // PWA Service Worker Registration
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/service-worker.js').catch(function(err) {
-          console.log('SW registration failed:', err);
-        });
-      });
+      window.addEventListener('load', function() { navigator.serviceWorker.register('/service-worker.js').catch(function() {}); });
     }
 
-    // PWA Install Prompt
     var deferredPrompt;
     window.addEventListener('beforeinstallprompt', function(e) {
       e.preventDefault();
       deferredPrompt = e;
-      if (!localStorage.getItem('pwa-install-dismissed')) {
-        showInstallBanner();
-      }
+      if (!localStorage.getItem('pwa-install-dismissed')) showInstallBanner();
     });
 
     function showInstallBanner() {
       if (document.getElementById('pwa-install-banner')) return;
       var banner = document.createElement('div');
       banner.id = 'pwa-install-banner';
-      banner.innerHTML = '<div style="position:fixed;bottom:20px;left:20px;right:20px;max-width:400px;margin:0 auto;background:linear-gradient(135deg,#0D7C5F,#10A37F);border-radius:14px;padding:16px 20px;display:flex;align-items:center;gap:14px;z-index:10000;box-shadow:0 8px 32px rgba(0,0,0,0.4);font-family:DM Sans,sans-serif;"><div style="font-size:24px;">📱</div><div style="flex:1;color:#fff;"><div style="font-weight:700;font-size:14px;margin-bottom:2px;">Install WealthRx</div><div style="font-size:12px;opacity:0.9;">Get alerts for new transactions</div></div><button id="pwa-install-btn" style="padding:8px 16px;background:#fff;color:#0D7C5F;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;">Install</button><button id="pwa-dismiss-btn" style="padding:8px;background:transparent;color:rgba(255,255,255,0.7);border:none;font-size:18px;cursor:pointer;">×</button></div>';
+      banner.innerHTML = '<div style="position:fixed;bottom:90px;left:20px;right:20px;max-width:400px;margin:0 auto;background:linear-gradient(135deg,#0D7C5F,#10A37F);border-radius:14px;padding:16px 20px;display:flex;align-items:center;gap:14px;z-index:10000;box-shadow:0 8px 32px rgba(0,0,0,0.4);font-family:DM Sans,sans-serif;"><div style="font-size:24px;">📱</div><div style="flex:1;color:#fff;"><div style="font-weight:700;font-size:14px;margin-bottom:2px;">Install WealthRx</div><div style="font-size:12px;opacity:0.9;">Get alerts for new transactions</div></div><button id="pwa-install-btn" style="padding:8px 16px;background:#fff;color:#0D7C5F;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;">Install</button><button id="pwa-dismiss-btn" style="padding:8px;background:transparent;color:rgba(255,255,255,0.7);border:none;font-size:18px;cursor:pointer;">×</button></div>';
       document.body.appendChild(banner);
-      document.getElementById('pwa-install-btn').addEventListener('click', function() {
-        if (!deferredPrompt) return;
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(function(result) {
-          deferredPrompt = null;
-          document.getElementById('pwa-install-banner').remove();
-        });
-      });
-      document.getElementById('pwa-dismiss-btn').addEventListener('click', function() {
-        document.getElementById('pwa-install-banner').remove();
-        localStorage.setItem('pwa-install-dismissed', Date.now());
-      });
+      document.getElementById('pwa-install-btn').addEventListener('click', function() { if (!deferredPrompt) return; deferredPrompt.prompt(); deferredPrompt.userChoice.then(function() { deferredPrompt = null; document.getElementById('pwa-install-banner').remove(); }); });
+      document.getElementById('pwa-dismiss-btn').addEventListener('click', function() { document.getElementById('pwa-install-banner').remove(); localStorage.setItem('pwa-install-dismissed', Date.now()); });
     }
   </script>
 </body>
