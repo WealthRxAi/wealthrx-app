@@ -74,13 +74,7 @@
     .filter-btn.active { background: rgba(16,163,127,0.12); color: #10A37F; border-color: rgba(16,163,127,0.2); }
     select.filter-select { padding: 8px 12px; border-radius: 100px; font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; border: 1px solid rgba(250,250,248,0.08); background: rgba(250,250,248,0.03); color: rgba(250,250,248,0.5); outline: none; }
 
-    /* SELECT ALL VISIBLE CHECKBOX */
-    .select-all-wrap {
-      display: flex; align-items: center; gap: 8px;
-      padding: 8px 14px; border-radius: 100px;
-      background: rgba(250,250,248,0.03); border: 1px solid rgba(250,250,248,0.08);
-      cursor: pointer; font-size: 13px; color: rgba(250,250,248,0.6); font-weight: 500;
-    }
+    .select-all-wrap { display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 100px; background: rgba(250,250,248,0.03); border: 1px solid rgba(250,250,248,0.08); cursor: pointer; font-size: 13px; color: rgba(250,250,248,0.6); font-weight: 500; }
     .select-all-wrap:hover { background: rgba(250,250,248,0.06); color: #FAFAF8; }
     .select-all-wrap input[type="checkbox"] { cursor: pointer; accent-color: #10A37F; }
 
@@ -92,15 +86,11 @@
     .cat-count { font-size: 12px; color: rgba(250,250,248,0.35); }
     .cat-amount { font-family: 'Instrument Serif', serif; font-size: 22px; color: #10A37F; }
 
-    /* TRANSACTION WITH CHECKBOX */
     .tx-item { background: rgba(250,250,248,0.015); border: 1px solid rgba(250,250,248,0.04); border-radius: 12px; margin-bottom: 8px; overflow: hidden; transition: all 0.15s; }
     .tx-item.selected { border-color: rgba(16,163,127,0.4); background: rgba(16,163,127,0.04); }
     .tx-main { display: flex; align-items: center; gap: 12px; padding: 16px 20px; cursor: pointer; }
     .tx-main:hover { background: rgba(250,250,248,0.02); }
-    .tx-checkbox {
-      width: 20px; height: 20px; cursor: pointer;
-      accent-color: #10A37F; flex-shrink: 0;
-    }
+    .tx-checkbox { width: 20px; height: 20px; cursor: pointer; accent-color: #10A37F; flex-shrink: 0; }
     .tx-left { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; }
     .tx-status { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
     .tx-status.deductible { background: rgba(16,163,127,0.12); }
@@ -114,11 +104,7 @@
     .tx-tag.deductible { background: rgba(16,163,127,0.12); color: #10A37F; }
     .tx-tag.partial { background: rgba(255,193,7,0.12); color: #ffc107; }
     .tx-tag.personal { background: rgba(255,80,80,0.08); color: #ff6b6b; }
-    .tx-more-btn {
-      background: transparent; border: none; color: rgba(250,250,248,0.3);
-      font-size: 18px; cursor: pointer; padding: 4px 8px; border-radius: 6px;
-      font-family: inherit;
-    }
+    .tx-more-btn { background: transparent; border: none; color: rgba(250,250,248,0.3); font-size: 18px; cursor: pointer; padding: 4px 8px; border-radius: 6px; font-family: inherit; }
     .tx-more-btn:hover { background: rgba(250,250,248,0.06); color: #FAFAF8; }
 
     .tx-details { display: none; padding: 0 20px 16px; border-top: 1px solid rgba(250,250,248,0.04); }
@@ -134,48 +120,18 @@
     .review-btn.no { background: rgba(255,80,80,0.08); color: #ff6b6b; border: 1px solid rgba(255,80,80,0.15); }
     .review-confirmed { font-size: 13px; color: #10A37F; font-weight: 600; margin-top: 12px; }
 
-    /* SELECT SIMILAR DROPDOWN */
-    .similar-menu {
-      position: absolute; z-index: 500;
-      background: #14191B; border: 1px solid rgba(250,250,248,0.1);
-      border-radius: 10px; padding: 6px; min-width: 240px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-    }
-    .similar-menu-item {
-      padding: 10px 14px; border-radius: 7px; cursor: pointer;
-      font-size: 13px; color: rgba(250,250,248,0.75);
-      display: flex; align-items: center; gap: 8px;
-    }
+    .similar-menu { position: absolute; z-index: 500; background: #14191B; border: 1px solid rgba(250,250,248,0.1); border-radius: 10px; padding: 6px; min-width: 240px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+    .similar-menu-item { padding: 10px 14px; border-radius: 7px; cursor: pointer; font-size: 13px; color: rgba(250,250,248,0.75); display: flex; align-items: center; gap: 8px; }
     .similar-menu-item:hover { background: rgba(16,163,127,0.1); color: #FAFAF8; }
     .similar-menu-item.danger { color: rgba(255,80,80,0.8); }
     .similar-menu-item.danger:hover { background: rgba(255,80,80,0.08); color: #ff6b6b; }
-    .similar-menu-header {
-      padding: 8px 14px 4px; font-size: 11px; color: rgba(250,250,248,0.35);
-      text-transform: uppercase; letter-spacing: 1px; font-weight: 600;
-    }
+    .similar-menu-header { padding: 8px 14px 4px; font-size: 11px; color: rgba(250,250,248,0.35); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
     .similar-menu-divider { height: 1px; background: rgba(250,250,248,0.06); margin: 4px 0; }
 
-    /* FLOATING ACTION BAR */
-    .action-bar {
-      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120%);
-      background: #14191B; border: 1px solid rgba(16,163,127,0.3);
-      border-radius: 16px; padding: 14px 18px;
-      display: flex; align-items: center; gap: 12px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-      z-index: 900; transition: transform 0.3s ease;
-      max-width: calc(100vw - 32px);
-    }
+    .action-bar { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120%); background: #14191B; border: 1px solid rgba(16,163,127,0.3); border-radius: 16px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); z-index: 900; transition: transform 0.3s ease; max-width: calc(100vw - 32px); }
     .action-bar.open { transform: translateX(-50%) translateY(0); }
-    .action-bar-count {
-      font-family: 'Instrument Serif', serif; font-size: 18px;
-      color: #10A37F; padding-right: 12px; border-right: 1px solid rgba(250,250,248,0.08);
-      white-space: nowrap;
-    }
-    .action-bar-btn {
-      padding: 10px 16px; border-radius: 10px; font-size: 13px;
-      font-family: 'DM Sans', sans-serif; font-weight: 600; cursor: pointer;
-      border: none; white-space: nowrap;
-    }
+    .action-bar-count { font-family: 'Instrument Serif', serif; font-size: 18px; color: #10A37F; padding-right: 12px; border-right: 1px solid rgba(250,250,248,0.08); white-space: nowrap; }
+    .action-bar-btn { padding: 10px 16px; border-radius: 10px; font-size: 13px; font-family: 'DM Sans', sans-serif; font-weight: 600; cursor: pointer; border: none; white-space: nowrap; }
     .action-bar-btn.yes { background: rgba(16,163,127,0.18); color: #10A37F; border: 1px solid rgba(16,163,127,0.3); }
     .action-bar-btn.yes:hover { background: rgba(16,163,127,0.28); }
     .action-bar-btn.no { background: rgba(255,80,80,0.1); color: #ff6b6b; border: 1px solid rgba(255,80,80,0.2); }
@@ -332,7 +288,6 @@
     </div>
   </div>
 
-  <!-- FLOATING ACTION BAR -->
   <div class="action-bar" id="action-bar">
     <div class="action-bar-count" id="action-bar-count">0 selected</div>
     <button class="action-bar-btn yes" onclick="bulkConfirm(true)">✅ Mark as Business</button>
@@ -340,13 +295,12 @@
     <button class="action-bar-btn cancel" onclick="clearSelection()">Cancel</button>
   </div>
 
-  <!-- SIMILAR SELECTION MENU (hidden by default) -->
   <div class="similar-menu" id="similar-menu" style="display:none;"></div>
 
   <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
   <script>
     var SUPABASE_URL = 'https://rvlipquyxkehiqhgptai.supabase.co';
-    var SUPABASE_ANON_KEY = 'YeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2bGlwcXV5eGtlaGlxaGdwdGFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2OTcxMDIsImV4cCI6MjA5MTI3MzEwMn0.r2Uh5r21dUknjf-XbipbOeuHs8FwM8KNJNC9ZvpmSXI';
+    var SUPABASE_ANON_KEY = 'YOUR_LEGACY_ANON_KEY';
     var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     var currentUser = null;
@@ -372,18 +326,23 @@
       var sessionResult = await sb.auth.getSession();
       if (!sessionResult.data.session) { window.location.href = '/login.html'; return; }
       currentUser = sessionResult.data.session.user;
-      
-      // Check if user is approved - redirect to waitlist if not
+
+      // Check if user is approved AND onboarded
       var profileResult = await sb.from('profiles').select('onboarded, approved').eq('id', currentUser.id).single();
+
+      // If not approved, send to waitlist
       if (profileResult.data && profileResult.data.approved === false) {
         window.location.href = '/waitlist.html';
         return;
       }
-      if (profileResult.data && !profileResult.data.onboarded) { 
-        window.location.href = '/onboarding.html'; 
-        return; 
+
+      // If approved but not onboarded, send to onboarding
+      if (profileResult.data && !profileResult.data.onboarded) {
+        window.location.href = '/onboarding.html';
+        return;
       }
-      
+
+      // All good - show dashboard
       document.getElementById('loading').style.display = 'none';
       document.getElementById('app').style.display = 'block';
       var name = (currentUser.user_metadata && currentUser.user_metadata.full_name) || currentUser.email.split('@')[0];
