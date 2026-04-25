@@ -65,7 +65,7 @@ module.exports = async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'WealthRx Alerts <alerts@wealthrx.ai>',
+        from: 'WealthRx Alerts <onboarding@resend.dev>',
         to: ['salman@wealthrx.ai'],
         subject: '🚨 New WealthRx signup: ' + fullName + ' (' + email + ')',
         html: emailHtml
