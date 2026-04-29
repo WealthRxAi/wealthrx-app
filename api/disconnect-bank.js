@@ -1,8 +1,9 @@
 // Disconnect a bank from WealthRx
-// 1. Removes the access token from Plaid (revokes our access)
-// 2. Deletes all transactions associated with that bank connection
-// 3. Deletes the bank connection record itself
-// Result: dashboard shows zero data after disconnecting all banks
+// Logic:
+// 1. Revoke the Plaid item (removes our access)
+// 2. Delete the bank_connections record
+// 3. If this was the user's LAST connected bank, delete all their transactions
+//    so dashboard shows zero. If they have other banks, leave transactions alone.
 
 const PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID;
 const PLAID_SECRET = process.env.PLAID_SECRET;
@@ -47,9 +48,8 @@ module.exports = async function handler(req, res) {
 
     const connection = connections[0];
     const accessToken = connection.access_token;
-    const itemId = connection.item_id;
 
-    // Step 2: Revoke the Plaid item (removes our access)
+    // Step 2: Revoke the Plaid item
     if (accessToken) {
       try {
         await fetch(`${PLAID_BASE_URL}/item/remove`, {
@@ -62,35 +62,12 @@ module.exports = async function handler(req, res) {
           })
         });
       } catch (plaidErr) {
-        // Continue with deletion even if Plaid revoke fails
-        // (e.g., token already expired)
+        // Continue even if Plaid revoke fails (token might be expired)
         console.error('Plaid revoke failed (continuing):', plaidErr.message);
       }
     }
 
-    // Step 3: Delete all transactions tied to this bank connection
-    // We identify them via item_id (each transaction stores the plaid item_id)
-    if (itemId) {
-      const deleteTxRes = await fetch(
-        `${SUPABASE_URL}/rest/v1/transactions?user_id=eq.${user_id}&plaid_item_id=eq.${itemId}`,
-        {
-          method: 'DELETE',
-          headers: {
-            'apikey': SUPABASE_SERVICE_KEY,
-            'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=minimal'
-          }
-        }
-      );
-
-      if (!deleteTxRes.ok) {
-        const errText = await deleteTxRes.text();
-        console.error('Failed to delete transactions:', errText);
-      }
-    }
-
-    // Step 4: Delete the bank_connections record
+    // Step 3: Delete the bank_connections record
     const deleteConnRes = await fetch(
       `${SUPABASE_URL}/rest/v1/bank_connections?id=eq.${connection_id}&user_id=eq.${user_id}`,
       {
@@ -109,9 +86,52 @@ module.exports = async function handler(req, res) {
       return res.status(500).json({ error: 'Failed to delete bank connection', details: errText });
     }
 
+    // Step 4: Check if user has any remaining bank connections
+    const remainingRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/bank_connections?user_id=eq.${user_id}&select=id`,
+      {
+        headers: {
+          'apikey': SUPABASE_SERVICE_KEY,
+          'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    const remainingConnections = await remainingRes.json();
+    const hasOtherBanks = Array.isArray(remainingConnections) && remainingConnections.length > 0;
+
+    let transactionsDeleted = false;
+
+    // Step 5: If this was the LAST bank, clean up all transactions
+    if (!hasOtherBanks) {
+      const deleteTxRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/transactions?user_id=eq.${user_id}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'apikey': SUPABASE_SERVICE_KEY,
+            'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          }
+        }
+      );
+
+      if (deleteTxRes.ok) {
+        transactionsDeleted = true;
+      } else {
+        const errText = await deleteTxRes.text();
+        console.error('Failed to delete transactions:', errText);
+      }
+    }
+
     return res.status(200).json({ 
-      success: true, 
-      message: 'Bank disconnected and all associated data removed' 
+      success: true,
+      message: hasOtherBanks 
+        ? 'Bank disconnected. Other banks remain connected.'
+        : 'Bank disconnected. All transactions cleared since no banks remain.',
+      transactions_deleted: transactionsDeleted
     });
 
   } catch (error) {
