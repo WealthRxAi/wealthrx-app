@@ -1,81 +1,124 @@
-var plaidModule = require('plaid');
-var supabaseModule = require('@supabase/supabase-js');
+// Disconnect a bank from WealthRx
+// 1. Removes the access token from Plaid (revokes our access)
+// 2. Deletes all transactions associated with that bank connection
+// 3. Deletes the bank connection record itself
+// Result: dashboard shows zero data after disconnecting all banks
 
-var PlaidApi = plaidModule.PlaidApi;
-var Configuration = plaidModule.Configuration;
-var PlaidEnvironments = plaidModule.PlaidEnvironments;
+const PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID;
+const PLAID_SECRET = process.env.PLAID_SECRET;
+const PLAID_ENV = process.env.PLAID_ENV || 'production';
+const PLAID_BASE_URL = PLAID_ENV === 'production' 
+  ? 'https://production.plaid.com' 
+  : 'https://sandbox.plaid.com';
 
-var plaidClient = new PlaidApi(
-  new Configuration({
-    basePath: PlaidEnvironments[process.env.PLAID_ENV || 'sandbox'],
-    baseOptions: {
-      headers: {
-        'PLAID-CLIENT-ID': process.env.PLAID_CLIENT_ID,
-        'PLAID-SECRET': process.env.PLAID_SECRET
-      }
-    }
-  })
-);
-
-var supabaseAdmin = supabaseModule.createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY
-);
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 
 module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
   try {
-    var user_id = req.body.user_id;
-    var connection_id = req.body.connection_id;
+    const { user_id, connection_id } = req.body;
 
     if (!user_id || !connection_id) {
-      return res.status(400).json({ error: 'Missing user_id or connection_id' });
+      return res.status(400).json({ error: 'user_id and connection_id required' });
     }
 
-    // Get the access token first
-    var connResult = await supabaseAdmin
-      .from('bank_connections')
-      .select('access_token, item_id, institution_name')
-      .eq('id', connection_id)
-      .eq('user_id', user_id)
-      .single();
+    // Step 1: Get the bank connection details
+    const getConnRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/bank_connections?id=eq.${connection_id}&user_id=eq.${user_id}&select=*`,
+      {
+        headers: {
+          'apikey': SUPABASE_SERVICE_KEY,
+          'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
 
-    if (connResult.error || !connResult.data) {
+    const connections = await getConnRes.json();
+
+    if (!Array.isArray(connections) || connections.length === 0) {
       return res.status(404).json({ error: 'Bank connection not found' });
     }
 
-    var accessToken = connResult.data.access_token;
-    var itemId = connResult.data.item_id;
+    const connection = connections[0];
+    const accessToken = connection.access_token;
+    const itemId = connection.item_id;
 
-    // Revoke the item in Plaid (stops all data access)
-    try {
-      await plaidClient.itemRemove({ access_token: accessToken });
-    } catch (plaidErr) {
-      console.error('Plaid remove error:', plaidErr.message);
-      // Continue anyway - we still want to delete from our DB
+    // Step 2: Revoke the Plaid item (removes our access)
+    if (accessToken) {
+      try {
+        await fetch(`${PLAID_BASE_URL}/item/remove`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            client_id: PLAID_CLIENT_ID,
+            secret: PLAID_SECRET,
+            access_token: accessToken
+          })
+        });
+      } catch (plaidErr) {
+        // Continue with deletion even if Plaid revoke fails
+        // (e.g., token already expired)
+        console.error('Plaid revoke failed (continuing):', plaidErr.message);
+      }
     }
 
-    // Delete the connection from Supabase
-    await supabaseAdmin
-      .from('bank_connections')
-      .delete()
-      .eq('id', connection_id)
-      .eq('user_id', user_id);
+    // Step 3: Delete all transactions tied to this bank connection
+    // We identify them via item_id (each transaction stores the plaid item_id)
+    if (itemId) {
+      const deleteTxRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/transactions?user_id=eq.${user_id}&plaid_item_id=eq.${itemId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'apikey': SUPABASE_SERVICE_KEY,
+            'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          }
+        }
+      );
 
-    // Delete all transactions from this bank
-    // First, get all plaid_transaction_ids that came from this item
-    // Note: Plaid transactions have account_id linking to accounts linking to item_id
-    // For simplicity, we delete transactions by user_id where no other active bank has them
-    // Actually, the cleanest approach: we keep transactions but user won't see updates
+      if (!deleteTxRes.ok) {
+        const errText = await deleteTxRes.text();
+        console.error('Failed to delete transactions:', errText);
+      }
+    }
 
-    // Alternative cleaner approach: delete transactions tied to this item_id
-    // But we don't store item_id on transactions. So we'll leave existing transactions.
+    // Step 4: Delete the bank_connections record
+    const deleteConnRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/bank_connections?id=eq.${connection_id}&user_id=eq.${user_id}`,
+      {
+        method: 'DELETE',
+        headers: {
+          'apikey': SUPABASE_SERVICE_KEY,
+          'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        }
+      }
+    );
 
-    res.json({ success: true, message: 'Bank disconnected successfully' });
+    if (!deleteConnRes.ok) {
+      const errText = await deleteConnRes.text();
+      return res.status(500).json({ error: 'Failed to delete bank connection', details: errText });
+    }
+
+    return res.status(200).json({ 
+      success: true, 
+      message: 'Bank disconnected and all associated data removed' 
+    });
+
   } catch (error) {
-    console.error('Disconnect error:', error.message);
-    res.status(500).json({ error: 'Failed to disconnect bank', details: error.message });
+    console.error('Disconnect bank error:', error.message);
+    return res.status(500).json({ 
+      error: 'Server error', 
+      details: error.message 
+    });
   }
 };
