@@ -133,6 +133,42 @@ async function categorizeTransactions(transactions, userProfile) {
   }
 }
 
+// Fetch ALL transactions from a single Plaid item, paginated
+async function fetchAllPlaidTransactions(accessToken, startDate, endDate) {
+  var allTransactions = [];
+  var allAccounts = [];
+  var offset = 0;
+  var pageSize = 500; // Plaid max per call
+  var totalAvailable = null;
+  var maxIterations = 20; // safety limit (10,000 transactions max)
+  var iteration = 0;
+
+  while (iteration < maxIterations) {
+    var resp = await plaidClient.transactionsGet({
+      access_token: accessToken,
+      start_date: startDate,
+      end_date: endDate,
+      options: { count: pageSize, offset: offset }
+    });
+
+    if (offset === 0) {
+      totalAvailable = resp.data.total_transactions;
+      allAccounts = resp.data.accounts || [];
+    }
+
+    allTransactions = allTransactions.concat(resp.data.transactions);
+
+    if (allTransactions.length >= totalAvailable || resp.data.transactions.length === 0) {
+      break;
+    }
+
+    offset += pageSize;
+    iteration += 1;
+  }
+
+  return { transactions: allTransactions, accounts: allAccounts };
+}
+
 module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -151,41 +187,52 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: 'No bank connection found' });
     }
 
-    // Fetch transactions from ALL banks
+    // FIXED: Pull 24 months of history (Plaid's max), not 30 days
+    var now = new Date();
+    var twoYearsAgo = new Date(now.getTime() - 730 * 24 * 60 * 60 * 1000); // 730 days = ~24 months
+
     var allPlaidTransactions = [];
     var allAccounts = [];
-    var now = new Date();
-    var thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-    var institutionMap = {}; // Track which institution each tx came from
+    var institutionMap = {};
+    var bankResults = [];
 
     for (var c = 0; c < connResult.data.length; c++) {
       var connection = connResult.data[c];
       try {
-        var plaidResp = await plaidClient.transactionsGet({
-          access_token: connection.access_token,
-          start_date: thirtyDaysAgo.toISOString().split('T')[0],
-          end_date: now.toISOString().split('T')[0],
-          options: { count: 100, offset: 0 }
-        });
+        // Fetch ALL transactions paginated
+        var result = await fetchAllPlaidTransactions(
+          connection.access_token,
+          twoYearsAgo.toISOString().split('T')[0],
+          now.toISOString().split('T')[0]
+        );
 
         // Tag each transaction with its institution
-        plaidResp.data.transactions.forEach(function(tx) {
+        result.transactions.forEach(function(tx) {
           institutionMap[tx.transaction_id] = connection.institution_name;
         });
 
-        allPlaidTransactions = allPlaidTransactions.concat(plaidResp.data.transactions);
-        allAccounts = allAccounts.concat(plaidResp.data.accounts || []);
+        allPlaidTransactions = allPlaidTransactions.concat(result.transactions);
+        allAccounts = allAccounts.concat(result.accounts);
+
+        bankResults.push({
+          institution: connection.institution_name,
+          transactions_pulled: result.transactions.length
+        });
 
         // Update last_synced for this connection
         await supabaseAdmin
           .from('bank_connections')
           .update({
             last_synced: new Date().toISOString(),
-            balance: (plaidResp.data.accounts || []).reduce(function(s, a) { return s + (a.balances.current || 0); }, 0)
+            balance: result.accounts.reduce(function(s, a) { return s + (a.balances.current || 0); }, 0)
           })
           .eq('item_id', connection.item_id);
       } catch (plaidErr) {
         console.error('Plaid error for ' + connection.institution_name + ':', plaidErr.message);
+        bankResults.push({
+          institution: connection.institution_name,
+          error: plaidErr.message
+        });
       }
     }
 
@@ -193,7 +240,7 @@ module.exports = async function handler(req, res) {
       return res.json({ success: true, count: 0, message: 'No transactions found across all connected banks' });
     }
 
-    // Categorize in batches of 20
+    // Categorize in batches of 20 to keep Claude API responsive
     var batchSize = 20;
     var allCategorized = [];
 
@@ -225,17 +272,29 @@ module.exports = async function handler(req, res) {
       };
     });
 
-    var insertResult = await supabaseAdmin
-      .from('transactions')
-      .upsert(toStore, { onConflict: 'plaid_transaction_id' });
+    // Insert in chunks to avoid Supabase timeouts on large batches
+    var insertChunkSize = 200;
+    for (var j = 0; j < toStore.length; j += insertChunkSize) {
+      var chunk = toStore.slice(j, j + insertChunkSize);
+      var insertResult = await supabaseAdmin
+        .from('transactions')
+        .upsert(chunk, { onConflict: 'plaid_transaction_id' });
 
-    if (insertResult.error) throw insertResult.error;
+      if (insertResult.error) {
+        console.error('Insert chunk error:', insertResult.error);
+        throw insertResult.error;
+      }
+    }
 
     res.json({
       success: true,
       count: toStore.length,
       banks_synced: connResult.data.length,
-      banks: connResult.data.map(function(c) { return c.institution_name; })
+      banks: bankResults,
+      date_range: {
+        start: twoYearsAgo.toISOString().split('T')[0],
+        end: now.toISOString().split('T')[0]
+      }
     });
   } catch (error) {
     console.error('Sync error:', error.response ? error.response.data : error.message || error);
