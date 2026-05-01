@@ -730,7 +730,16 @@
       var now = new Date();
       var filtered = transactions;
       if (period === 'month') { filtered = transactions.filter(function(t) { var d = new Date(t.date); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); }); }
-      else if (period === 'quarter') { var qStart = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1); filtered = transactions.filter(function(t) { return new Date(t.date) >= qStart; }); }
+      else if (period === 'quarter') {
+        var curQStartMonth = Math.floor(now.getMonth() / 3) * 3;
+        var prevQStartMonth = curQStartMonth - 3;
+        var prevQYear = now.getFullYear();
+        if (prevQStartMonth < 0) { prevQStartMonth += 12; prevQYear -= 1; }
+        var qStart = new Date(prevQYear, prevQStartMonth, 1);
+        var qEnd = new Date(prevQYear, prevQStartMonth + 3, 1);
+        filtered = transactions.filter(function(t) { var d = new Date(t.date); return d >= qStart && d < qEnd; });
+      }
+      else if (period === 'year') { var yStart = new Date(now.getFullYear(), 0, 1); filtered = transactions.filter(function(t) { return new Date(t.date) >= yStart; }); }
       filteredTransactions = filtered;
       renderTransactions(filtered);
     }
