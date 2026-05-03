@@ -30,81 +30,67 @@ IRS DEDUCTION RULES FOR SMALL BUSINESSES:
 
 CRITICAL RULES (apply BEFORE deduction logic):
 1. POSITIVE AMOUNTS = INCOME = NEVER DEDUCTIBLE
-2. TRANSFERS BETWEEN ACCOUNTS = NEEDS REVIEW (could be intercompany, capital contribution, ATM deposits, etc.)
-3. ATM deposits/withdrawals = NEEDS REVIEW (source unknown)
+2. TRANSFERS BETWEEN ACCOUNTS = NEEDS REVIEW
+3. ATM deposits/withdrawals = NEEDS REVIEW
 
 FULLY DEDUCTIBLE EXPENSES (100%):
-- Office supplies and materials (Pub 535, Sec 162)
-- Software and SaaS subscriptions (Pub 535, Sec 162)
-- Business insurance premiums (Pub 535, Sec 162)
+- Office supplies (Pub 535, Sec 162)
+- Software/SaaS (Pub 535, Sec 162)
+- Insurance (Pub 535, Sec 162)
 - Professional services (Pub 535, Sec 162)
-- Advertising and marketing (Pub 535, Sec 162)
-- Business phone and internet (Pub 535, Sec 162)
-- Rent for business space (Pub 535, Sec 162)
-- Equipment (Pub 946, Sec 179) - up to limit, fully deductible in year of purchase
+- Advertising (Pub 535, Sec 162)
+- Phone/internet (Pub 535, Sec 162)
+- Rent (Pub 535, Sec 162)
+- Equipment under Section 179 (Pub 946)
 - Business travel (Pub 463, Ch 1)
-- Business education (Pub 970, Sec 162)
-- Bank fees and merchant processing (Pub 535, Sec 162)
-- Shipping and postage (Pub 535, Sec 162)
-- Business licenses and permits (Pub 535, Sec 162)
+- Education (Pub 970, Sec 162)
+- Bank fees (Pub 535, Sec 162)
+- Shipping (Pub 535, Sec 162)
+- Licenses (Pub 535, Sec 162)
 - Contractor payments (Pub 535, Sec 162)
 
-PARTIALLY DEDUCTIBLE EXPENSES:
-- Business meals (Pub 463, Sec 274(k)): 50% deductible
-- Vehicle expenses (Pub 463, Sec 274(d)): Business use percentage only
-- Home office (Pub 587, Sec 280A): Simplified $5/sq ft up to $1,500
-- Cell phone (Pub 535, Sec 162): Business use percentage
+PARTIALLY DEDUCTIBLE:
+- Business meals 50% (Pub 463, Sec 274(k))
+- Vehicle business use % (Pub 463, Sec 274(d))
+- Home office $5/sq ft up to $1,500 (Pub 587, Sec 280A)
+- Cell phone business % (Pub 535)
 
 NEVER DEDUCTIBLE:
-- Personal expenses, groceries, clothing, gym
+- Personal expenses, groceries, clothing
 - Entertainment (post-2018)
-- Personal rent or mortgage
-- Commuting from home to regular workplace
-- Fines and penalties
+- Personal mortgage/rent
+- Commuting
+- Fines
 
 INCOME (POSITIVE AMOUNTS):
-- eBay/Amazon/Stripe sales = INCOME
-- Customer payments (ACH/wire) = INCOME
-- Refunds received = reduce previous expense, not new income
-- Interest earned = INCOME
+- eBay, Amazon, Stripe sales = INCOME
+- Customer ACH = INCOME  
+- Refunds reduce expense, not income
+- Interest = INCOME
 
 TRANSFERS (FLAG FOR REVIEW):
-- ACH transfers between accounts = REVIEW (could be intercompany or self-transfer)
-- ATM deposits = REVIEW (cash source unknown)
-- ATM withdrawals = REVIEW (use unknown)
-- Wire transfers between owned entities = REVIEW (intercompany)
-- Zelle to/from family = REVIEW (could be loan, gift, or business)
-- Internal bank transfers = NOT income, NOT deduction, just movement
-- Rent paid TO own LLC = REVIEW (deductible to payor, income to recipient)
-- Loan disbursements/repayments = REVIEW (principal vs interest)
-
-REVIEW NUANCES:
-- Amazon, Walmart, Target, Costco — REVIEW
-- Restaurants — default 50% with REVIEW
-- Uber/Lyft — REVIEW
-- Subscriptions — determine if business or personal
+- ACH transfers = REVIEW
+- ATM activity = REVIEW
+- Wire transfers = REVIEW
+- Zelle/Venmo = REVIEW
+- Internal transfers = NOT income/deduction
 `;
 
-// Detect if a transaction is a transfer/ATM/inter-account movement
-// Returns true if this needs review regardless of AI judgment
+// Detect transfer-like transactions
 function isTransferOrAmbiguous(plaidTx) {
   var name = (plaidTx.name || '').toUpperCase();
   var merchant = (plaidTx.merchant_name || '').toUpperCase();
   var combined = name + ' ' + merchant;
 
-  // Plaid's own transfer category
   if (plaidTx.personal_finance_category && plaidTx.personal_finance_category.primary === 'TRANSFER_IN') return true;
   if (plaidTx.personal_finance_category && plaidTx.personal_finance_category.primary === 'TRANSFER_OUT') return true;
 
-  // Common transfer/ATM keywords
   var transferKeywords = [
     'TRANSFER', 'XFER', 'XFR',
     'ATM', 'CASH WITHDRAWAL', 'CASH DEPOSIT',
     'ZELLE', 'VENMO', 'CASHAPP', 'CASH APP',
-    'WIRE', 'ACH',
-    'MOBILE DEPOSIT', 'CHECK DEPOSIT',
-    'INTERNAL TRANSFER',
-    'BETWEEN ACCOUNTS',
+    'WIRE', 'MOBILE DEPOSIT', 'CHECK DEPOSIT',
+    'INTERNAL TRANSFER', 'BETWEEN ACCOUNTS',
     'P2P', 'PERSON TO PERSON',
     'BANK CREDIT', 'BANK DEBIT',
     'DEPOSIT MADE', 'WITHDRAWAL'
@@ -117,6 +103,15 @@ function isTransferOrAmbiguous(plaidTx) {
   }
 
   return false;
+}
+
+// Generate a stable hash for deduplication
+// This handles Plaid's habit of changing transaction IDs
+function generateDedupeKey(tx) {
+  var vendor = (tx.merchant_name || tx.name || '').toUpperCase().trim();
+  var amount = parseFloat(tx.amount).toFixed(2);
+  var date = tx.date;
+  return vendor + '|' + amount + '|' + date;
 }
 
 async function getUserProfile(userId) {
@@ -146,24 +141,20 @@ async function categorizeTransactions(transactions, userProfile) {
   businessContext += '- Uses vehicle for business: ' + (userProfile.uses_vehicle ? 'Yes, ' + (userProfile.vehicle_business_pct || 0) + '% business use' : 'No') + '\n';
   businessContext += '- Account type: ' + (userProfile.account_type || 'unknown') + '\n';
 
-  var prompt = 'You are WealthRx, an AI tax categorization engine for small businesses. Analyze these bank transactions.\n\n' +
+  var prompt = 'You are WealthRx, an AI tax categorization engine. Analyze these bank transactions.\n\n' +
     'PLAID AMOUNT CONVENTION:\n' +
-    '- POSITIVE amount = expense (money LEAVING)\n' +
-    '- NEGATIVE amount = income (money COMING IN)\n\n' +
+    '- POSITIVE = expense\n' +
+    '- NEGATIVE = income\n\n' +
     businessContext + '\n' +
     IRS_RULES + '\n\n' +
     'For EACH transaction, return JSON with:\n' +
-    '- "name": original name\n' +
-    '- "vendor": clean vendor name\n' +
-    '- "category": one of: "Office Supplies", "Software", "Meals", "Vehicle & Travel", "Equipment", "Professional Services", "Internet & Phone", "Advertising", "Insurance", "Education", "Rent & Utilities", "Bank Fees", "Shipping", "Contractor Payments", "Personal", "Income", "Transfer"\n' +
-    '- "is_deductible": true ONLY if business expense AND positive Plaid amount. False for income, transfers.\n' +
-    '- "deduction_percent": 100 for fully deductible, 50 for meals, ' + (userProfile.vehicle_business_pct || 0) + ' for vehicle/Uber/Lyft, 0 for personal/income/transfers\n' +
-    '- "needs_review": true if ambiguous, transfer-like, ATM, or cross-account\n' +
-    '- "irs_reference": IRS pub or "N/A" for income/transfers\n' +
-    '- "irs_link": IRS URL or "N/A"\n' +
-    '- "irs_explanation": 15-20 word explanation\n' +
-    '- "note": 5-10 word summary\n\n' +
-    'Respond with ONLY the JSON array, no markdown.\n\n' +
+    '- "name", "vendor"\n' +
+    '- "category": one of "Office Supplies","Software","Meals","Vehicle & Travel","Equipment","Professional Services","Internet & Phone","Advertising","Insurance","Education","Rent & Utilities","Bank Fees","Shipping","Contractor Payments","Personal","Income","Transfer"\n' +
+    '- "is_deductible": boolean\n' +
+    '- "deduction_percent": 100/50/' + (userProfile.vehicle_business_pct || 0) + '/0\n' +
+    '- "needs_review": boolean\n' +
+    '- "irs_reference", "irs_link", "irs_explanation", "note"\n\n' +
+    'Respond with ONLY the JSON array.\n\n' +
     'Transactions:\n' + JSON.stringify(txList, null, 2);
 
   var response = await anthropic.messages.create({
@@ -275,32 +266,76 @@ module.exports = async function handler(req, res) {
     }
 
     if (allPlaidTransactions.length === 0) {
-      return res.json({ success: true, count: 0, message: 'No transactions found across all connected banks' });
+      return res.json({ success: true, count: 0, message: 'No transactions found' });
     }
 
+    // CRITICAL FIX: Dedupe BEFORE categorizing
+    // This handles Plaid's habit of generating new IDs for same transaction
+    // We dedupe by vendor + amount + date combination
+    var seenKeys = {};
+    var dedupedPlaidTransactions = [];
+    for (var d = 0; d < allPlaidTransactions.length; d++) {
+      var dedupeKey = generateDedupeKey(allPlaidTransactions[d]);
+      if (!seenKeys[dedupeKey]) {
+        seenKeys[dedupeKey] = true;
+        dedupedPlaidTransactions.push(allPlaidTransactions[d]);
+      }
+    }
+
+    // ALSO: Check existing DB to avoid creating duplicates of transactions already there
+    var existingResult = await supabaseAdmin
+      .from('transactions')
+      .select('vendor, amount, date')
+      .eq('user_id', user_id);
+
+    var existingKeys = {};
+    if (existingResult.data) {
+      existingResult.data.forEach(function(existing) {
+        var existingVendor = (existing.vendor || '').toUpperCase().trim();
+        var existingAmount = parseFloat(Math.abs(existing.amount)).toFixed(2);
+        // Note: stored amount is sign-flipped, so we compare absolute values
+        var key = existingVendor + '|' + existingAmount + '|' + existing.date;
+        existingKeys[key] = true;
+      });
+    }
+
+    // Filter out transactions that already exist in DB
+    var newTransactions = dedupedPlaidTransactions.filter(function(plaidTx) {
+      var vendor = (plaidTx.merchant_name || plaidTx.name || '').toUpperCase().trim();
+      var amount = parseFloat(Math.abs(plaidTx.amount)).toFixed(2);
+      var key = vendor + '|' + amount + '|' + plaidTx.date;
+      return !existingKeys[key];
+    });
+
+    if (newTransactions.length === 0) {
+      return res.json({
+        success: true,
+        count: 0,
+        skipped_existing: dedupedPlaidTransactions.length,
+        message: 'All transactions already in database'
+      });
+    }
+
+    // Categorize new transactions only
     var batchSize = 20;
     var allCategorized = [];
 
-    for (var i = 0; i < allPlaidTransactions.length; i += batchSize) {
-      var batch = allPlaidTransactions.slice(i, i + batchSize);
+    for (var i = 0; i < newTransactions.length; i += batchSize) {
+      var batch = newTransactions.slice(i, i + batchSize);
       var categorized = await categorizeTransactions(batch, userProfile);
       allCategorized = allCategorized.concat(categorized);
     }
 
-    // Map back and store with TRIPLE PROTECTION:
-    // 1. Income transactions (positive stored amount) → never deductible
-    // 2. Transfer/ATM transactions → always need review, not deductible
-    // 3. Trust AI for normal expenses
-    var toStore = allPlaidTransactions.map(function(plaidTx, index) {
+    var toStore = newTransactions.map(function(plaidTx, index) {
       var aiData = allCategorized[index] || {};
       var storedAmount = plaidTx.amount * -1;
       var isIncome = storedAmount > 0;
       var isTransferLike = isTransferOrAmbiguous(plaidTx);
 
-      var isDeductible, deductionPercent, category, needsReview, irsReference, irsLink, irsExplanation;
+      var isDeductible, deductionPercent, category, needsReview;
+      var irsReference, irsLink, irsExplanation;
 
       if (isTransferLike) {
-        // TRANSFER OR ATM - flag for review, don't auto-categorize
         isDeductible = false;
         deductionPercent = 0;
         category = 'Transfer';
@@ -308,10 +343,9 @@ module.exports = async function handler(req, res) {
         irsReference = 'N/A';
         irsLink = 'N/A';
         irsExplanation = isIncome
-          ? 'Transfer/deposit detected. Verify source: customer payment, intercompany transfer, or capital contribution?'
-          : 'Transfer/withdrawal detected. Verify purpose: intercompany payment, owner draw, or business expense?';
+          ? 'Transfer/deposit detected. Verify source.'
+          : 'Transfer/withdrawal detected. Verify purpose.';
       } else if (isIncome) {
-        // INCOME - hardcoded non-deductible
         isDeductible = false;
         deductionPercent = 0;
         category = 'Income';
@@ -320,7 +354,6 @@ module.exports = async function handler(req, res) {
         irsLink = 'N/A';
         irsExplanation = 'Income received - not a deductible expense';
       } else {
-        // EXPENSE - trust AI
         isDeductible = aiData.is_deductible || false;
         deductionPercent = aiData.deduction_percent || 0;
         category = aiData.category || 'Uncategorized';
@@ -349,7 +382,7 @@ module.exports = async function handler(req, res) {
       };
     });
 
-    // Insert in chunks to avoid timeout
+    // Insert in chunks
     var insertChunkSize = 200;
     for (var j = 0; j < toStore.length; j += insertChunkSize) {
       var chunk = toStore.slice(j, j + insertChunkSize);
@@ -366,6 +399,7 @@ module.exports = async function handler(req, res) {
     res.json({
       success: true,
       count: toStore.length,
+      skipped_existing: dedupedPlaidTransactions.length - newTransactions.length,
       banks_synced: connResult.data.length,
       banks: bankResults,
       date_range: {
