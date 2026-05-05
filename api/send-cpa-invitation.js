@@ -190,7 +190,7 @@ AI-powered bookkeeping for accountants and small businesses
 Sent on behalf of ${cpa_firm_name}
     `.trim();
 
-    // Send via Resend
+    // Send via Resend - using verified wealthrx.ai domain
     const resendRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -198,7 +198,7 @@ Sent on behalf of ${cpa_firm_name}
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'WealthRx <onboarding@resend.dev>',
+        from: 'WealthRx <invitations@wealthrx.ai>',
         to: [client_email],
         reply_to: cpa_email || undefined,
         subject: `${cpa_firm_name} invited you to WealthRx`,
