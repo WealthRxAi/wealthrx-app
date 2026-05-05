@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Accept Invitation - WealthRx</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%2300d68f'/%3E%3Ctext x='50' y='65' font-family='Arial' font-size='50' font-weight='bold' fill='black' text-anchor='middle'%3EW%3C/text%3E%3C/svg%3E">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { 
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+    background: #0a0a0a; 
+    color: #fff; 
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  
+  .card {
+    background: #111;
+    border: 1px solid #222;
+    border-radius: 16px;
+    padding: 2.5rem;
+    max-width: 480px;
+    width: 100%;
+  }
+  
+  .logo {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #00d68f;
+    margin-bottom: 1rem;
+  }
+  
+  .welcome-banner {
+    background: rgba(0, 214, 143, 0.1);
+    border: 1px solid rgba(0, 214, 143, 0.3);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  .welcome-banner .firm-name {
+    color: #00d68f;
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+  .welcome-banner .subtext {
+    color: #aaa;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+  }
+  
+  h1 {
+    font-size: 1.6rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+  }
+  .subtitle {
+    color: #888;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  .form-label {
+    display: block;
+    color: #ccc;
+    font-size: 0.85rem;
+    margin-bottom: 0.4rem;
+    font-weight: 500;
+  }
+  
+  .form-input {
+    width: 100%;
+    background: #0a0a0a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 0.85rem 1rem;
+    color: #fff;
+    font-size: 1rem;
+  }
+  .form-input:focus { outline: none; border-color: #00d68f; }
+  .form-input:disabled { background: #1a1a1a; color: #666; cursor: not-allowed; }
+  
+  .password-hints {
+    color: #666;
+    font-size: 0.8rem;
+    margin-top: 0.4rem;
+  }
+  
+  .btn-primary {
+    width: 100%;
+    background: #00d68f;
+    color: #000;
+    border: none;
+    padding: 0.9rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+    transition: all 0.2s;
+  }
+  .btn-primary:hover { background: #00ff9d; }
+  .btn-primary:disabled { background: #444; color: #888; cursor: not-allowed; }
+  
+  .alert {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+  .alert-success { background: rgba(0, 214, 143, 0.1); border: 1px solid rgba(0, 214, 143, 0.3); color: #00d68f; }
+  .alert-error { background: rgba(255, 80, 80, 0.1); border: 1px solid rgba(255, 80, 80, 0.3); color: #ff5050; }
+  .alert-info { background: rgba(100, 150, 255, 0.1); border: 1px solid rgba(100, 150, 255, 0.3); color: #8aaeff; }
+  
+  .loading-state {
+    text-align: center;
+    padding: 2rem 0;
+    color: #888;
+  }
+  
+  .spinner {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    border: 3px solid #222;
+    border-top-color: #00d68f;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  .info-list {
+    list-style: none;
+    padding: 0;
+    margin: 1.5rem 0;
+  }
+  .info-list li {
+    padding: 0.5rem 0;
+    color: #aaa;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+  .info-list li::before {
+    content: '✓';
+    color: #00d68f;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+  
+  .footer-text {
+    text-align: center;
+    color: #666;
+    font-size: 0.8rem;
+    margin-top: 1.5rem;
+  }
+  .footer-text a { color: #00d68f; text-decoration: none; }
+  
+  .error-state {
+    text-align: center;
+    padding: 1rem 0;
+  }
+  .error-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+  .error-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  .error-text {
+    color: #aaa;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<div class="card" id="mainCard">
+  <div class="loading-state">
+    <div class="spinner"></div>
+    <div>Verifying your invitation...</div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://rvlipquyxkehiqhgptai.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2bGlwcXV5eGtlaGlxaGdwdGFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2OTcxMDIsImV4cCI6MjA5MTI3MzEwMn0.r2Uh5r21dUknjf-XbipbOeuHs8FwM8KNJNC9ZvpmSXI';
+  
+  const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const card = document.getElementById('mainCard');
+  
+  let invitation = null;
+  let firm = null;
+  
+  async function init() {
+    // Get token from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    
+    if (!token) {
+      showError(
+        '🔗',
+        'Invalid Invitation Link',
+        'The invitation link is missing or malformed. Please ask your accountant to send a new invitation.'
+      );
+      return;
+    }
+    
+    // Look up the invitation
+    const { data: invites, error } = await supa
+      .from('cpa_clients')
+      .select('id, cpa_firm_id, client_email, client_name, status, invitation_sent_at, invitation_accepted_at')
+      .eq('invitation_token', token);
+    
+    if (error || !invites || invites.length === 0) {
+      showError(
+        '❌',
+        'Invitation Not Found',
+        'This invitation link is invalid or has been deleted. Please ask your accountant to send a new invitation.'
+      );
+      return;
+    }
+    
+    invitation = invites[0];
+    
+    // Check if already accepted
+    if (invitation.status === 'active' && invitation.invitation_accepted_at) {
+      showAlreadyAccepted();
+      return;
+    }
+    
+    // Get the CPA firm info
+    const { data: firms } = await supa
+      .from('cpa_firms')
+      .select('name, email')
+      .eq('id', invitation.cpa_firm_id);
+    
+    if (firms && firms.length > 0) {
+      firm = firms[0];
+    } else {
+      firm = { name: 'Your Accountant' };
+    }
+    
+    // Check if user is already logged in
+    const { data: { session } } = await supa.auth.getSession();
+    
+    if (session && session.user.email === invitation.client_email) {
+      // Already signed in with the invited email - just complete the linking
+      await acceptInvitationForExistingUser(session.user);
+      return;
+    }
+    
+    if (session && session.user.email !== invitation.client_email) {
+      // Logged in but with a different email
+      showError(
+        '⚠️',
+        'Wrong Account',
+        `This invitation is for ${invitation.client_email}, but you're signed in as ${session.user.email}. Please sign out and try the invitation link again.`
+      );
+      return;
+    }
+    
+    // Not signed in - show signup form
+    showSignupForm();
+  }
+  
+  function showSignupForm() {
+    card.innerHTML = `
+      <div class="logo">WealthRx</div>
+      
+      <div class="welcome-banner">
+        <div class="firm-name">${escapeHtml(firm.name)}</div>
+        <div class="subtext">has invited you to WealthRx</div>
+      </div>
+      
+      <h1>Set up your account</h1>
+      <p class="subtitle">Create a password to access your bookkeeping. Your accountant will manage your transactions on your behalf.</p>
+      
+      <div id="alertContainer"></div>
+      
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" id="emailInput" value="${escapeHtml(invitation.client_email)}" disabled>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Your Name</label>
+        <input type="text" class="form-input" id="nameInput" value="${escapeHtml(invitation.client_name || '')}" placeholder="John Smith">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Create Password</label>
+        <input type="password" class="form-input" id="passwordInput" placeholder="At least 8 characters">
+        <div class="password-hints">Use at least 8 characters</div>
+      </div>
+      
+      <button class="btn-primary" id="submitBtn" onclick="completeSignup()">Create Account & Continue</button>
+      
+      <ul class="info-list">
+        <li>Your accountant will see your transactions</li>
+        <li>You can connect your bank accounts securely via Plaid</li>
+        <li>You can leave anytime and take your data with you</li>
+      </ul>
+      
+      <div class="footer-text">
+        By creating an account, you agree to our <a href="/terms.html">Terms</a> and <a href="/privacy-policy.html">Privacy Policy</a>
+      </div>
+    `;
+  }
+  
+  function showAlreadyAccepted() {
+    card.innerHTML = `
+      <div class="logo">WealthRx</div>
+      
+      <div class="error-state">
+        <div class="error-icon">✓</div>
+        <div class="error-title">Already Accepted</div>
+        <div class="error-text" style="margin-bottom: 1.5rem;">
+          You've already accepted this invitation. Please sign in to continue.
+        </div>
+        <a href="/login.html" class="btn-primary" style="display: inline-block; text-decoration: none; padding: 0.85rem 2rem;">Sign In</a>
+      </div>
+    `;
+  }
+  
+  function showError(icon, title, message) {
+    card.innerHTML = `
+      <div class="logo">WealthRx</div>
+      
+      <div class="error-state">
+        <div class="error-icon">${icon}</div>
+        <div class="error-title">${escapeHtml(title)}</div>
+        <div class="error-text">${escapeHtml(message)}</div>
+      </div>
+      
+      <div class="footer-text" style="margin-top: 2rem;">
+        Need help? Contact your accountant directly.
+      </div>
+    `;
+  }
+  
+  async function completeSignup() {
+    const name = document.getElementById('nameInput').value.trim();
+    const password = document.getElementById('passwordInput').value;
+    const submitBtn = document.getElementById('submitBtn');
+    
+    // Validate
+    if (!name) {
+      showFormAlert('Please enter your name', 'error');
+      return;
+    }
+    
+    if (password.length < 8) {
+      showFormAlert('Password must be at least 8 characters', 'error');
+      return;
+    }
+    
+    submitBtn.textContent = 'Creating account...';
+    submitBtn.disabled = true;
+    
+    try {
+      // Sign up the user
+      const { data: signupData, error: signupError } = await supa.auth.signUp({
+        email: invitation.client_email,
+        password: password,
+        options: {
+          data: {
+            full_name: name
+          }
+        }
+      });
+      
+      if (signupError) {
+        // If user already exists, try to sign in instead
+        if (signupError.message.includes('already registered') || signupError.message.includes('already been registered')) {
+          showFormAlert('An account already exists for this email. Please sign in to accept the invitation.', 'error');
+          submitBtn.textContent = 'Sign In Instead';
+          submitBtn.onclick = () => {
+            sessionStorage.setItem('post_login_invitation_token', getTokenFromUrl());
+            window.location.href = '/login.html';
+          };
+          submitBtn.disabled = false;
+          return;
+        }
+        
+        showFormAlert('Could not create account: ' + signupError.message, 'error');
+        submitBtn.textContent = 'Create Account & Continue';
+        submitBtn.disabled = false;
+        return;
+      }
+      
+      if (!signupData.user) {
+        showFormAlert('Account creation succeeded but no user returned. Please try signing in.', 'error');
+        return;
+      }
+      
+      // Create or update profile with cpa_client type
+      await supa
+        .from('profiles')
+        .upsert({
+          id: signupData.user.id,
+          full_name: name,
+          user_type: 'cpa_client',
+          email: invitation.client_email
+        });
+      
+      // Link the invitation
+      await supa
+        .from('cpa_clients')
+        .update({
+          client_user_id: signupData.user.id,
+          client_name: name,
+          invitation_accepted_at: new Date().toISOString(),
+          status: 'active'
+        })
+        .eq('id', invitation.id);
+      
+      // Show success
+      showSuccessAndRedirect();
+      
+    } catch (err) {
+      showFormAlert('Error: ' + err.message, 'error');
+      submitBtn.textContent = 'Create Account & Continue';
+      submitBtn.disabled = false;
+    }
+  }
+  
+  async function acceptInvitationForExistingUser(user) {
+    card.innerHTML = `
+      <div class="logo">WealthRx</div>
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <div>Linking your account to ${escapeHtml(firm.name)}...</div>
+      </div>
+    `;
+    
+    try {
+      // Update profile to cpa_client if not already
+      const { data: existingProfile } = await supa
+        .from('profiles')
+        .select('user_type')
+        .eq('id', user.id)
+        .single();
+      
+      // Only update user_type if they're a regular business owner (don't downgrade CPAs)
+      if (!existingProfile || existingProfile.user_type === 'business_owner') {
+        await supa
+          .from('profiles')
+          .upsert({
+            id: user.id,
+            user_type: 'cpa_client'
+          });
+      }
+      
+      // Link the invitation
+      await supa
+        .from('cpa_clients')
+        .update({
+          client_user_id: user.id,
+          invitation_accepted_at: new Date().toISOString(),
+          status: 'active'
+        })
+        .eq('id', invitation.id);
+      
+      showSuccessAndRedirect();
+      
+    } catch (err) {
+      showError(
+        '⚠️',
+        'Could Not Accept Invitation',
+        'There was an error linking your account: ' + err.message
+      );
+    }
+  }
+  
+  function showSuccessAndRedirect() {
+    card.innerHTML = `
+      <div class="logo">WealthRx</div>
+      
+      <div class="error-state">
+        <div class="error-icon" style="color: #00d68f;">✓</div>
+        <div class="error-title">Welcome to WealthRx!</div>
+        <div class="error-text" style="margin-bottom: 1.5rem;">
+          Your account is connected to <strong style="color: #00d68f;">${escapeHtml(firm.name)}</strong>.
+          <br><br>
+          Next, you'll connect your bank account so your accountant can manage your bookkeeping.
+        </div>
+      </div>
+    `;
+    
+    // Redirect to onboarding after 2 seconds
+    setTimeout(() => {
+      window.location.href = '/onboarding.html';
+    }, 2500);
+  }
+  
+  function showFormAlert(message, type) {
+    const container = document.getElementById('alertContainer');
+    if (container) {
+      container.innerHTML = '<div class="alert alert-' + type + '">' + escapeHtml(message) + '</div>';
+    }
+  }
+  
+  function getTokenFromUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('token') || '';
+  }
+  
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+  
+  init();
+</script>
+
+</body>
+</html>
