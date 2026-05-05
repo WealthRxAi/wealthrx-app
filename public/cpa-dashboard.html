@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPA Dashboard - WealthRx</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%2300d68f'/%3E%3Ctext x='50' y='65' font-family='Arial' font-size='50' font-weight='bold' fill='black' text-anchor='middle'%3EW%3C/text%3E%3C/svg%3E">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { 
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+    background: #0a0a0a; 
+    color: #fff; 
+    min-height: 100vh;
+  }
+  
+  /* Header */
+  .header { 
+    background: #111; 
+    border-bottom: 1px solid #222; 
+    padding: 1rem 2rem; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo { font-size: 1.5rem; font-weight: bold; color: #00d68f; }
+  .firm-info { display: flex; align-items: center; gap: 1rem; font-size: 0.9rem; color: #888; }
+  .logout-btn { 
+    background: transparent; 
+    color: #888; 
+    border: 1px solid #333; 
+    padding: 0.5rem 1rem; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    font-size: 0.85rem;
+  }
+  .logout-btn:hover { color: #fff; border-color: #555; }
+  
+  /* Container */
+  .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+  
+  /* Page header */
+  .page-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .page-title { font-size: 2rem; font-weight: bold; }
+  .page-subtitle { color: #888; margin-top: 0.25rem; font-size: 0.95rem; }
+  
+  /* Buttons */
+  .btn-primary { 
+    background: #00d68f; 
+    color: #000; 
+    border: none; 
+    padding: 0.75rem 1.5rem; 
+    border-radius: 8px; 
+    font-weight: 600; 
+    cursor: pointer; 
+    font-size: 0.95rem;
+    transition: all 0.2s;
+  }
+  .btn-primary:hover { background: #00ff9d; transform: translateY(-1px); }
+  
+  .btn-secondary {
+    background: transparent;
+    color: #fff;
+    border: 1px solid #333;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { border-color: #00d68f; color: #00d68f; }
+  
+  /* Stats overview */
+  .stats-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+    gap: 1rem; 
+    margin-bottom: 2rem; 
+  }
+  .stat-card { 
+    background: #111; 
+    border: 1px solid #222; 
+    border-radius: 12px; 
+    padding: 1.25rem; 
+  }
+  .stat-label { color: #888; font-size: 0.85rem; margin-bottom: 0.5rem; }
+  .stat-value { font-size: 1.75rem; font-weight: bold; color: #00d68f; }
+  .stat-detail { color: #666; font-size: 0.8rem; margin-top: 0.25rem; }
+  
+  /* Search */
+  .search-bar {
+    background: #111;
+    border: 1px solid #222;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    color: #fff;
+    width: 100%;
+    max-width: 400px;
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+  }
+  .search-bar:focus { outline: none; border-color: #00d68f; }
+  
+  /* Clients list */
+  .clients-section h2 { font-size: 1.3rem; margin-bottom: 1rem; }
+  
+  .clients-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+    gap: 1rem; 
+  }
+  
+  .client-card { 
+    background: #111; 
+    border: 1px solid #222; 
+    border-radius: 12px; 
+    padding: 1.5rem; 
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .client-card:hover { 
+    border-color: #00d68f; 
+    transform: translateY(-2px); 
+    box-shadow: 0 8px 16px rgba(0, 214, 143, 0.1);
+  }
+  
+  .client-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+  
+  .client-name { 
+    font-size: 1.1rem; 
+    font-weight: 600; 
+    margin-bottom: 0.25rem; 
+  }
+  .client-email { color: #888; font-size: 0.85rem; }
+  
+  /* Status badges */
+  .status-badge { 
+    padding: 0.25rem 0.6rem; 
+    border-radius: 12px; 
+    font-size: 0.75rem; 
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .status-active { background: rgba(0, 214, 143, 0.15); color: #00d68f; }
+  .status-invited { background: rgba(255, 200, 0, 0.15); color: #ffc800; }
+  .status-paused { background: rgba(150, 150, 150, 0.15); color: #999; }
+  
+  .client-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #222;
+  }
+  .client-stat {
+    text-align: center;
+  }
+  .client-stat-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+  }
+  .client-stat-value.alert { color: #ffc800; }
+  .client-stat-value.zero { color: #555; }
+  .client-stat-label {
+    font-size: 0.7rem;
+    color: #666;
+    margin-top: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .client-footer {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #222;
+    color: #666;
+    font-size: 0.8rem;
+  }
+  
+  .client-pending-banner {
+    background: rgba(255, 200, 0, 0.1);
+    border: 1px solid rgba(255, 200, 0, 0.3);
+    color: #ffc800;
+    padding: 0.5rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    text-align: center;
+    margin-top: 0.75rem;
+  }
+  
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: #111;
+    border: 1px dashed #333;
+    border-radius: 12px;
+  }
+  .empty-state-icon { font-size: 3rem; margin-bottom: 1rem; }
+  .empty-state-title { font-size: 1.3rem; font-weight: 600; margin-bottom: 0.5rem; }
+  .empty-state-text { color: #888; margin-bottom: 1.5rem; max-width: 500px; margin-left: auto; margin-right: auto; }
+  
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.active { display: flex; }
+  
+  .modal {
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal h2 { margin-bottom: 0.5rem; }
+  .modal-subtitle { color: #888; font-size: 0.9rem; margin-bottom: 1.5rem; }
+  
+  .form-group { margin-bottom: 1rem; }
+  .form-label {
+    display: block;
+    color: #ccc;
+    font-size: 0.85rem;
+    margin-bottom: 0.4rem;
+    font-weight: 500;
+  }
+  .form-input {
+    width: 100%;
+    background: #0a0a0a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    color: #fff;
+    font-size: 0.95rem;
+  }
+  .form-input:focus { outline: none; border-color: #00d68f; }
+  
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+  
+  /* Loading */
+  .loading {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #888;
+  }
+  
+  /* Alert */
+  .alert {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+  .alert-success { background: rgba(0, 214, 143, 0.1); border: 1px solid rgba(0, 214, 143, 0.3); color: #00d68f; }
+  .alert-error { background: rgba(255, 80, 80, 0.1); border: 1px solid rgba(255, 80, 80, 0.3); color: #ff5050; }
+  
+  @media (max-width: 768px) {
+    .header { padding: 1rem; }
+    .container { padding: 1rem; }
+    .clients-grid { grid-template-columns: 1fr; }
+    .firm-info { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">WealthRx <span style="color: #888; font-size: 0.85rem; font-weight: normal;">CPA</span></div>
+  <div class="firm-info">
+    <span id="firmName">Loading firm...</span>
+    <button class="logout-btn" onclick="logout()">Sign Out</button>
+  </div>
+</div>
+
+<div class="container">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Your Clients</div>
+      <div class="page-subtitle" id="pageSubtitle">Loading...</div>
+    </div>
+    <button class="btn-primary" onclick="openInviteModal()">+ Invite Client</button>
+  </div>
+  
+  <div id="alertContainer"></div>
+  
+  <!-- Stats overview -->
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card">
+      <div class="stat-label">Total Clients</div>
+      <div class="stat-value" id="totalClients">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Active</div>
+      <div class="stat-value" id="activeClients">—</div>
+      <div class="stat-detail">Onboarded with bank</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Pending Setup</div>
+      <div class="stat-value" id="pendingClients">—</div>
+      <div class="stat-detail">Invited, not yet active</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Needs Review</div>
+      <div class="stat-value" id="needsReviewTotal">—</div>
+      <div class="stat-detail">Across all clients</div>
+    </div>
+  </div>
+  
+  <input type="text" class="search-bar" id="searchBar" placeholder="Search clients by name or email..." oninput="filterClients()">
+  
+  <!-- Clients list -->
+  <div class="clients-section">
+    <div id="clientsContainer">
+      <div class="loading">Loading your clients...</div>
+    </div>
+  </div>
+</div>
+
+<!-- Invite Client Modal -->
+<div class="modal-overlay" id="inviteModal">
+  <div class="modal">
+    <h2>Invite Client</h2>
+    <div class="modal-subtitle">They'll receive an email to connect their bank account.</div>
+    
+    <div id="inviteAlert"></div>
+    
+    <div class="form-group">
+      <label class="form-label">Client's Email</label>
+      <input type="email" class="form-input" id="clientEmail" placeholder="client@example.com">
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">Client's Name (optional)</label>
+      <input type="text" class="form-input" id="clientName" placeholder="John Smith">
+    </div>
+    
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeInviteModal()">Cancel</button>
+      <button class="btn-primary" onclick="sendInvitation()" id="sendInviteBtn">Send Invitation</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://rvlipquyxkehiqhgptai.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2bGlwcXV5eGtlaGlxaGdwdGFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMjEwOTAsImV4cCI6MjA2MzU5NzA5MH0.UlKW4w_NxQBjVngJiAGEXwKcRFrdHEnp0cb4bJFMGmM';
+  
+  const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  
+  let currentUser = null;
+  let currentFirm = null;
+  let allClients = [];
+  
+  // Initial load
+  async function init() {
+    // Check auth
+    const { data: { session }, error } = await supa.auth.getSession();
+    
+    if (error || !session) {
+      window.location.href = '/login.html';
+      return;
+    }
+    
+    currentUser = session.user;
+    
+    // Verify user is a CPA
+    const { data: profile } = await supa
+      .from('profiles')
+      .select('user_type, full_name, business_name')
+      .eq('id', currentUser.id)
+      .single();
+    
+    if (!profile || (profile.user_type !== 'cpa_admin' && profile.user_type !== 'cpa_staff')) {
+      // Not a CPA - redirect to regular dashboard
+      window.location.href = '/dashboard.html';
+      return;
+    }
+    
+    // Get the CPA's firm
+    const { data: firms } = await supa
+      .from('cpa_firms')
+      .select('*')
+      .eq('owner_user_id', currentUser.id);
+    
+    if (!firms || firms.length === 0) {
+      // CPA has no firm yet - they need to set one up
+      // For now, auto-create one based on their profile
+      const { data: newFirm } = await supa
+        .from('cpa_firms')
+        .insert({
+          owner_user_id: currentUser.id,
+          name: profile.business_name || profile.full_name + "'s Firm",
+          email: currentUser.email
+        })
+        .select()
+        .single();
+      
+      currentFirm = newFirm;
+    } else {
+      currentFirm = firms[0];
+    }
+    
+    document.getElementById('firmName').textContent = currentFirm.name;
+    
+    // Load clients
+    await loadClients();
+  }
+  
+  async function loadClients() {
+    const { data: clients, error } = await supa
+      .from('cpa_client_summary')
+      .select('*')
+      .eq('cpa_firm_id', currentFirm.id)
+      .order('display_name');
+    
+    if (error) {
+      showAlert('Could not load clients: ' + error.message, 'error');
+      return;
+    }
+    
+    allClients = clients || [];
+    
+    // Update stats
+    updateStats();
+    
+    // Render
+    renderClients(allClients);
+  }
+  
+  function updateStats() {
+    const total = allClients.length;
+    const active = allClients.filter(c => c.status === 'active').length;
+    const pending = allClients.filter(c => c.status === 'invited').length;
+    const needsReview = allClients.reduce((sum, c) => sum + (c.needs_review_count || 0), 0);
+    
+    document.getElementById('totalClients').textContent = total;
+    document.getElementById('activeClients').textContent = active;
+    document.getElementById('pendingClients').textContent = pending;
+    document.getElementById('needsReviewTotal').textContent = needsReview;
+    
+    document.getElementById('pageSubtitle').textContent = 
+      total === 0 ? 'No clients yet — invite your first to get started' :
+      total === 1 ? '1 client' :
+      total + ' clients';
+  }
+  
+  function renderClients(clients) {
+    const container = document.getElementById('clientsContainer');
+    
+    if (clients.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">👥</div>
+          <div class="empty-state-title">No clients yet</div>
+          <div class="empty-state-text">
+            Invite your first client to start using WealthRx for their bookkeeping. 
+            They'll get an email with a secure link to connect their bank account.
+          </div>
+          <button class="btn-primary" onclick="openInviteModal()">+ Invite Your First Client</button>
+        </div>
+      `;
+      return;
+    }
+    
+    container.innerHTML = '<div class="clients-grid">' + 
+      clients.map(client => renderClientCard(client)).join('') + 
+    '</div>';
+  }
+  
+  function renderClientCard(client) {
+    const isPending = client.status === 'invited';
+    const displayName = client.display_name || client.client_email;
+    const lastActivity = client.last_activity 
+      ? formatRelativeTime(client.last_activity)
+      : 'Never';
+    
+    const statusClass = 
+      client.status === 'active' ? 'status-active' :
+      client.status === 'invited' ? 'status-invited' :
+      'status-paused';
+    
+    return `
+      <div class="client-card" onclick="${isPending ? 'resendInvitation(\'' + client.cpa_client_id + '\')' : 'openClient(\'' + client.client_user_id + '\', \'' + escapeHtml(displayName) + '\')'}">
+        <div class="client-card-header">
+          <div>
+            <div class="client-name">${escapeHtml(displayName)}</div>
+            <div class="client-email">${escapeHtml(client.client_email)}</div>
+          </div>
+          <span class="status-badge ${statusClass}">${client.status}</span>
+        </div>
+        
+        ${isPending ? `
+          <div class="client-pending-banner">
+            ⏳ Waiting for client to accept invitation
+          </div>
+        ` : `
+          <div class="client-stats">
+            <div class="client-stat">
+              <div class="client-stat-value ${client.business_count > 0 ? '' : 'zero'}">${client.business_count || 0}</div>
+              <div class="client-stat-label">Businesses</div>
+            </div>
+            <div class="client-stat">
+              <div class="client-stat-value ${client.bank_count > 0 ? '' : 'zero'}">${client.bank_count || 0}</div>
+              <div class="client-stat-label">Banks</div>
+            </div>
+            <div class="client-stat">
+              <div class="client-stat-value ${client.needs_review_count > 0 ? 'alert' : 'zero'}">${client.needs_review_count || 0}</div>
+              <div class="client-stat-label">To Review</div>
+            </div>
+          </div>
+          <div class="client-footer">Last activity: ${lastActivity}</div>
+        `}
+      </div>
+    `;
+  }
+  
+  function filterClients() {
+    const query = document.getElementById('searchBar').value.toLowerCase().trim();
+    
+    if (!query) {
+      renderClients(allClients);
+      return;
+    }
+    
+    const filtered = allClients.filter(c => 
+      (c.display_name || '').toLowerCase().includes(query) ||
+      (c.client_email || '').toLowerCase().includes(query)
+    );
+    
+    renderClients(filtered);
+  }
+  
+  function openClient(clientUserId, clientName) {
+    if (!clientUserId) {
+      showAlert('This client has not signed up yet', 'error');
+      return;
+    }
+    
+    // Store CPA viewing context
+    sessionStorage.setItem('cpa_viewing_client_id', clientUserId);
+    sessionStorage.setItem('cpa_viewing_client_name', clientName);
+    
+    // Navigate to dashboard - it will detect the CPA viewing context
+    window.location.href = '/dashboard.html';
+  }
+  
+  function openInviteModal() {
+    document.getElementById('inviteModal').classList.add('active');
+    document.getElementById('clientEmail').focus();
+  }
+  
+  function closeInviteModal() {
+    document.getElementById('inviteModal').classList.remove('active');
+    document.getElementById('clientEmail').value = '';
+    document.getElementById('clientName').value = '';
+    document.getElementById('inviteAlert').innerHTML = '';
+  }
+  
+  async function sendInvitation() {
+    const email = document.getElementById('clientEmail').value.trim();
+    const name = document.getElementById('clientName').value.trim();
+    const btn = document.getElementById('sendInviteBtn');
+    
+    if (!email || !email.includes('@')) {
+      showInviteAlert('Please enter a valid email address', 'error');
+      return;
+    }
+    
+    btn.textContent = 'Sending...';
+    btn.disabled = true;
+    
+    try {
+      // Generate token
+      const token = generateToken();
+      
+      // Insert invitation
+      const { data, error } = await supa
+        .from('cpa_clients')
+        .insert({
+          cpa_firm_id: currentFirm.id,
+          client_email: email,
+          client_name: name || null,
+          invitation_token: token,
+          invitation_sent_at: new Date().toISOString(),
+          status: 'invited'
+        })
+        .select()
+        .single();
+      
+      if (error) {
+        showInviteAlert('Could not create invitation: ' + error.message, 'error');
+        btn.textContent = 'Send Invitation';
+        btn.disabled = false;
+        return;
+      }
+      
+      // Send email via API endpoint
+      const inviteUrl = window.location.origin + '/accept-invitation.html?token=' + token;
+      
+      try {
+        await fetch('/api/send-cpa-invitation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            client_email: email,
+            client_name: name,
+            cpa_firm_name: currentFirm.name,
+            cpa_email: currentUser.email,
+            invitation_url: inviteUrl
+          })
+        });
+      } catch (emailErr) {
+        console.error('Email send failed (invitation still created):', emailErr);
+      }
+      
+      showInviteAlert('Invitation sent to ' + email + '!', 'success');
+      
+      setTimeout(() => {
+        closeInviteModal();
+        loadClients();
+      }, 1500);
+      
+    } catch (err) {
+      showInviteAlert('Error: ' + err.message, 'error');
+      btn.textContent = 'Send Invitation';
+      btn.disabled = false;
+    }
+  }
+  
+  async function resendInvitation(cpaClientId) {
+    if (!confirm('Resend invitation email to this client?')) return;
+    
+    const client = allClients.find(c => c.cpa_client_id === cpaClientId);
+    if (!client) return;
+    
+    // Get full record with token
+    const { data: fullClient } = await supa
+      .from('cpa_clients')
+      .select('*')
+      .eq('id', cpaClientId)
+      .single();
+    
+    if (!fullClient) {
+      showAlert('Could not resend invitation', 'error');
+      return;
+    }
+    
+    const inviteUrl = window.location.origin + '/accept-invitation.html?token=' + fullClient.invitation_token;
+    
+    try {
+      await fetch('/api/send-cpa-invitation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_email: fullClient.client_email,
+          client_name: fullClient.client_name,
+          cpa_firm_name: currentFirm.name,
+          cpa_email: currentUser.email,
+          invitation_url: inviteUrl
+        })
+      });
+      
+      // Update sent timestamp
+      await supa
+        .from('cpa_clients')
+        .update({ invitation_sent_at: new Date().toISOString() })
+        .eq('id', cpaClientId);
+      
+      showAlert('Invitation resent to ' + fullClient.client_email, 'success');
+    } catch (err) {
+      showAlert('Could not resend: ' + err.message, 'error');
+    }
+  }
+  
+  function generateToken() {
+    const arr = new Uint8Array(32);
+    crypto.getRandomValues(arr);
+    return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+  
+  function showAlert(message, type) {
+    const html = '<div class="alert alert-' + type + '">' + escapeHtml(message) + '</div>';
+    document.getElementById('alertContainer').innerHTML = html;
+    setTimeout(() => {
+      document.getElementById('alertContainer').innerHTML = '';
+    }, 5000);
+  }
+  
+  function showInviteAlert(message, type) {
+    const html = '<div class="alert alert-' + type + '">' + escapeHtml(message) + '</div>';
+    document.getElementById('inviteAlert').innerHTML = html;
+  }
+  
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+  
+  function formatRelativeTime(timestamp) {
+    if (!timestamp) return 'Never';
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = now - date;
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    
+    if (days === 0) return 'Today';
+    if (days === 1) return 'Yesterday';
+    if (days < 7) return days + ' days ago';
+    if (days < 30) return Math.floor(days / 7) + 'w ago';
+    if (days < 365) return Math.floor(days / 30) + 'mo ago';
+    return Math.floor(days / 365) + 'y ago';
+  }
+  
+  async function logout() {
+    await supa.auth.signOut();
+    window.location.href = '/';
+  }
+  
+  init();
+</script>
+
+</body>
+</html>
