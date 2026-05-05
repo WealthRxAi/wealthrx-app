@@ -209,6 +209,41 @@
       document.getElementById('error-msg').style.display = 'none';
     }
 
+    // Determine where to send the user based on their profile
+    async function routeAfterLogin(userId) {
+      // Check if user came from an invitation that needs to be linked
+      var pendingInviteToken = sessionStorage.getItem('post_login_invitation_token');
+      if (pendingInviteToken) {
+        sessionStorage.removeItem('post_login_invitation_token');
+        window.location.href = '/accept-invitation.html?token=' + encodeURIComponent(pendingInviteToken);
+        return;
+      }
+
+      // Look up user_type from profile
+      try {
+        var profileRes = await sb
+          .from('profiles')
+          .select('user_type, onboarded')
+          .eq('id', userId)
+          .single();
+
+        var profile = profileRes.data;
+
+        // Route based on user_type
+        if (profile && (profile.user_type === 'cpa_admin' || profile.user_type === 'cpa_staff')) {
+          window.location.href = '/cpa-dashboard.html';
+          return;
+        }
+
+        // Everyone else (business_owner, cpa_client, or no type) goes to regular dashboard
+        window.location.href = '/dashboard.html';
+      } catch (err) {
+        // If profile lookup fails, default to regular dashboard
+        console.error('Profile lookup failed:', err);
+        window.location.href = '/dashboard.html';
+      }
+    }
+
     async function handleAuth(e) {
       e.preventDefault();
       hideMessages();
@@ -252,7 +287,8 @@
 
           if (result.error) throw result.error;
 
-          window.location.href = '/dashboard.html';
+          // Route based on user type
+          await routeAfterLogin(result.data.user.id);
         }
       } catch (error) {
         showError(error.message || 'Something went wrong. Please try again.');
@@ -265,7 +301,8 @@
     async function checkSession() {
       var session = await sb.auth.getSession();
       if (session.data.session) {
-        window.location.href = '/dashboard.html';
+        // User already logged in - route based on profile
+        await routeAfterLogin(session.data.session.user.id);
       }
     }
 
