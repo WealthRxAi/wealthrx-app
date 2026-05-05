@@ -15,7 +15,6 @@
     min-height: 100vh;
   }
   
-  /* Header */
   .header { 
     background: #111; 
     border-bottom: 1px solid #222; 
@@ -40,10 +39,8 @@
   }
   .logout-btn:hover { color: #fff; border-color: #555; }
   
-  /* Container */
   .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
   
-  /* Page header */
   .page-header { 
     display: flex; 
     justify-content: space-between; 
@@ -55,7 +52,6 @@
   .page-title { font-size: 2rem; font-weight: bold; }
   .page-subtitle { color: #888; margin-top: 0.25rem; font-size: 0.95rem; }
   
-  /* Buttons */
   .btn-primary { 
     background: #00d68f; 
     color: #000; 
@@ -81,7 +77,6 @@
   }
   .btn-secondary:hover { border-color: #00d68f; color: #00d68f; }
   
-  /* Stats overview */
   .stats-grid { 
     display: grid; 
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
@@ -98,7 +93,6 @@
   .stat-value { font-size: 1.75rem; font-weight: bold; color: #00d68f; }
   .stat-detail { color: #666; font-size: 0.8rem; margin-top: 0.25rem; }
   
-  /* Search */
   .search-bar {
     background: #111;
     border: 1px solid #222;
@@ -112,7 +106,6 @@
   }
   .search-bar:focus { outline: none; border-color: #00d68f; }
   
-  /* Clients list */
   .clients-section h2 { font-size: 1.3rem; margin-bottom: 1rem; }
   
   .clients-grid { 
@@ -150,7 +143,6 @@
   }
   .client-email { color: #888; font-size: 0.85rem; }
   
-  /* Status badges */
   .status-badge { 
     padding: 0.25rem 0.6rem; 
     border-radius: 12px; 
@@ -208,7 +200,6 @@
     margin-top: 0.75rem;
   }
   
-  /* Empty state */
   .empty-state {
     text-align: center;
     padding: 4rem 2rem;
@@ -220,7 +211,6 @@
   .empty-state-title { font-size: 1.3rem; font-weight: 600; margin-bottom: 0.5rem; }
   .empty-state-text { color: #888; margin-bottom: 1.5rem; max-width: 500px; margin-left: auto; margin-right: auto; }
   
-  /* Modal */
   .modal-overlay {
     position: fixed;
     inset: 0;
@@ -272,14 +262,12 @@
     margin-top: 1.5rem;
   }
   
-  /* Loading */
   .loading {
     text-align: center;
     padding: 4rem 2rem;
     color: #888;
   }
   
-  /* Alert */
   .alert {
     padding: 1rem;
     border-radius: 8px;
@@ -318,7 +306,6 @@
   
   <div id="alertContainer"></div>
   
-  <!-- Stats overview -->
   <div class="stats-grid" id="statsGrid">
     <div class="stat-card">
       <div class="stat-label">Total Clients</div>
@@ -343,7 +330,6 @@
   
   <input type="text" class="search-bar" id="searchBar" placeholder="Search clients by name or email..." oninput="filterClients()">
   
-  <!-- Clients list -->
   <div class="clients-section">
     <div id="clientsContainer">
       <div class="loading">Loading your clients...</div>
@@ -351,7 +337,6 @@
   </div>
 </div>
 
-<!-- Invite Client Modal -->
 <div class="modal-overlay" id="inviteModal">
   <div class="modal">
     <h2>Invite Client</h2>
@@ -378,7 +363,7 @@
 
 <script>
   const SUPABASE_URL = 'https://rvlipquyxkehiqhgptai.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2bGlwcXV5eGtlaGlxaGdwdGFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMjEwOTAsImV4cCI6MjA2MzU5NzA5MH0.UlKW4w_NxQBjVngJiAGEXwKcRFrdHEnp0cb4bJFMGmM';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2bGlwcXV5eGtlaGlxaGdwdGFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2OTcxMDIsImV4cCI6MjA5MTI3MzEwMn0.r2Uh5r21dUknjf-XbipbOeuHs8FwM8KNJNC9ZvpmSXI';
   
   const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   
@@ -386,9 +371,7 @@
   let currentFirm = null;
   let allClients = [];
   
-  // Initial load
   async function init() {
-    // Check auth
     const { data: { session }, error } = await supa.auth.getSession();
     
     if (error || !session) {
@@ -398,7 +381,6 @@
     
     currentUser = session.user;
     
-    // Verify user is a CPA
     const { data: profile } = await supa
       .from('profiles')
       .select('user_type, full_name, business_name')
@@ -406,25 +388,21 @@
       .single();
     
     if (!profile || (profile.user_type !== 'cpa_admin' && profile.user_type !== 'cpa_staff')) {
-      // Not a CPA - redirect to regular dashboard
       window.location.href = '/dashboard.html';
       return;
     }
     
-    // Get the CPA's firm
     const { data: firms } = await supa
       .from('cpa_firms')
       .select('*')
       .eq('owner_user_id', currentUser.id);
     
     if (!firms || firms.length === 0) {
-      // CPA has no firm yet - they need to set one up
-      // For now, auto-create one based on their profile
       const { data: newFirm } = await supa
         .from('cpa_firms')
         .insert({
           owner_user_id: currentUser.id,
-          name: profile.business_name || profile.full_name + "'s Firm",
+          name: profile.business_name || (profile.full_name || 'My') + " Firm",
           email: currentUser.email
         })
         .select()
@@ -435,13 +413,16 @@
       currentFirm = firms[0];
     }
     
-    document.getElementById('firmName').textContent = currentFirm.name;
+    if (currentFirm) {
+      document.getElementById('firmName').textContent = currentFirm.name;
+    }
     
-    // Load clients
     await loadClients();
   }
   
   async function loadClients() {
+    if (!currentFirm) return;
+    
     const { data: clients, error } = await supa
       .from('cpa_client_summary')
       .select('*')
@@ -454,11 +435,7 @@
     }
     
     allClients = clients || [];
-    
-    // Update stats
     updateStats();
-    
-    // Render
     renderClients(allClients);
   }
   
@@ -571,11 +548,9 @@
       return;
     }
     
-    // Store CPA viewing context
     sessionStorage.setItem('cpa_viewing_client_id', clientUserId);
     sessionStorage.setItem('cpa_viewing_client_name', clientName);
     
-    // Navigate to dashboard - it will detect the CPA viewing context
     window.location.href = '/dashboard.html';
   }
   
@@ -605,10 +580,8 @@
     btn.disabled = true;
     
     try {
-      // Generate token
       const token = generateToken();
       
-      // Insert invitation
       const { data, error } = await supa
         .from('cpa_clients')
         .insert({
@@ -629,7 +602,6 @@
         return;
       }
       
-      // Send email via API endpoint
       const inviteUrl = window.location.origin + '/accept-invitation.html?token=' + token;
       
       try {
@@ -665,10 +637,6 @@
   async function resendInvitation(cpaClientId) {
     if (!confirm('Resend invitation email to this client?')) return;
     
-    const client = allClients.find(c => c.cpa_client_id === cpaClientId);
-    if (!client) return;
-    
-    // Get full record with token
     const { data: fullClient } = await supa
       .from('cpa_clients')
       .select('*')
@@ -695,7 +663,6 @@
         })
       });
       
-      // Update sent timestamp
       await supa
         .from('cpa_clients')
         .update({ invitation_sent_at: new Date().toISOString() })
