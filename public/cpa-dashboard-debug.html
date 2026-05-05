@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPA Dashboard Debug - WealthRx</title>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<style>
+  body { 
+    font-family: monospace; 
+    background: #000; 
+    color: #00ff00; 
+    padding: 2rem; 
+    line-height: 1.6;
+  }
+  h1 { color: #fff; margin-bottom: 1rem; }
+  .step { 
+    background: #111; 
+    border: 1px solid #333; 
+    padding: 1rem; 
+    margin-bottom: 1rem; 
+    border-radius: 8px; 
+  }
+  .step h3 { color: #ffc800; margin-bottom: 0.5rem; }
+  .ok { color: #00ff00; }
+  .fail { color: #ff5050; }
+  .data { 
+    background: #000; 
+    padding: 0.5rem; 
+    margin-top: 0.5rem; 
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+</style>
+</head>
+<body>
+
+<h1>CPA Dashboard - Debug Mode</h1>
+<p style="color: #888; margin-bottom: 2rem;">This page diagnoses why the CPA dashboard redirects. It will NOT redirect you.</p>
+
+<div id="output">Running diagnostics...</div>
+
+<script>
+  const SUPABASE_URL = 'https://rvlipquyxkehiqhgptai.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2bGlwcXV5eGtlaGlxaGdwdGFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMjEwOTAsImV4cCI6MjA2MzU5NzA5MH0.UlKW4w_NxQBjVngJiAGEXwKcRFrdHEnp0cb4bJFMGmM';
+  
+  const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const output = document.getElementById('output');
+  
+  function log(title, content, isOk) {
+    const cls = isOk === true ? 'ok' : isOk === false ? 'fail' : '';
+    const icon = isOk === true ? '✓' : isOk === false ? '✗' : '•';
+    output.innerHTML += `
+      <div class="step">
+        <h3>${icon} ${title}</h3>
+        <div class="${cls}">${content}</div>
+      </div>
+    `;
+  }
+  
+  function logData(title, data) {
+    output.innerHTML += `
+      <div class="step">
+        <h3>${title}</h3>
+        <div class="data">${JSON.stringify(data, null, 2)}</div>
+      </div>
+    `;
+  }
+  
+  async function diagnose() {
+    output.innerHTML = '';
+    
+    // Step 1: Check session
+    try {
+      const { data: { session }, error } = await supa.auth.getSession();
+      
+      if (error) {
+        log('STEP 1: Get Session', 'ERROR: ' + error.message, false);
+        return;
+      }
+      
+      if (!session) {
+        log('STEP 1: Get Session', 'NO SESSION - You are not logged in. Go to /login.html first.', false);
+        return;
+      }
+      
+      log('STEP 1: Get Session', `Logged in as: ${session.user.email} (id: ${session.user.id})`, true);
+      
+      // Step 2: Query profile
+      const { data: profile, error: profileError } = await supa
+        .from('profiles')
+        .select('user_type, full_name, business_name, onboarded, approved')
+        .eq('id', session.user.id)
+        .single();
+      
+      if (profileError) {
+        log('STEP 2: Query Profile', 'ERROR: ' + profileError.message + ' (code: ' + profileError.code + ')', false);
+        return;
+      }
+      
+      if (!profile) {
+        log('STEP 2: Query Profile', 'NO PROFILE FOUND - Need to create profile row.', false);
+        return;
+      }
+      
+      logData('STEP 2: Profile Found', profile);
+      
+      // Step 3: Check user_type
+      const userType = profile.user_type;
+      const isCpa = userType === 'cpa_admin' || userType === 'cpa_staff';
+      
+      if (!isCpa) {
+        log('STEP 3: Check User Type', `user_type is "${userType}" - NOT a CPA. The production page would redirect you to /dashboard.html here.`, false);
+        log('FIX', `Run this in Supabase SQL Editor:<br><br><code>UPDATE profiles SET user_type = 'cpa_admin' WHERE id = '${session.user.id}';</code>`, false);
+        return;
+      }
+      
+      log('STEP 3: Check User Type', `user_type is "${userType}" - this IS a CPA. Page should NOT redirect.`, true);
+      
+      // Step 4: Query CPA firms
+      const { data: firms, error: firmsError } = await supa
+        .from('cpa_firms')
+        .select('*')
+        .eq('owner_user_id', session.user.id);
+      
+      if (firmsError) {
+        log('STEP 4: Query CPA Firms', 'ERROR: ' + firmsError.message + ' (code: ' + firmsError.code + ')', false);
+        return;
+      }
+      
+      logData('STEP 4: CPA Firms', firms || []);
+      
+      if (!firms || firms.length === 0) {
+        log('STEP 4 NOTE', 'No firm yet. Production page would auto-create one.', null);
+      }
+      
+      // Step 5: Query the cpa_client_summary view
+      const { data: clients, error: clientsError } = await supa
+        .from('cpa_client_summary')
+        .select('*')
+        .limit(5);
+      
+      if (clientsError) {
+        log('STEP 5: Query Client Summary', 'ERROR: ' + clientsError.message + ' (code: ' + clientsError.code + ')', false);
+      } else {
+        log('STEP 5: Query Client Summary', `Returned ${clients?.length || 0} rows (probably 0 since no clients yet)`, true);
+      }
+      
+      // Step 6: All clear
+      log('CONCLUSION', 'All checks passed. The production CPA dashboard SHOULD work for you. If it still redirects, there might be a caching issue or a JavaScript error.', true);
+      
+    } catch (err) {
+      log('UNEXPECTED ERROR', err.message + '<br><br>Stack:<br>' + (err.stack || 'no stack'), false);
+    }
+  }
+  
+  diagnose();
+</script>
+
+</body>
+</html>
